@@ -1,0 +1,230 @@
+#
+# avr-uart - UART module for AVR microcontrollers
+# Copyright (C) 2026 notweerdmonk
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+# SOFTWARE.
+#
+
+ifeq ($(BUILD_HOST),)
+
+AVR_CC = avr-gcc
+AVR_AR = avr-ar
+AVR_OBJCOPY = avr-objcopy
+AVR_OBJDUMP = avr-objdump
+AVR_SIZE = avr-size
+
+DEVICE = atmega328p
+CLOCK = 16000000
+
+ifeq ($(DEVICE),atmega2560)
+PROGRAMMER = wiring
+AVRDUDE_OPTIONS = -v -D
+else
+PROGRAMMER = arduino
+AVRDUDE_OPTIONS = -v
+endif
+PORT = /dev/ttyACM*
+AVRDUDE = avrdude $(AVRDUDE_OPTIONS) -c $(PROGRAMMER) -P $(PORT) -p $(DEVICE)
+
+FUSES = -U lfuse:w:0x64:m -U hfuse:w:0xdd:m -U efuse:w:0xff:m
+
+endif # !BUILD_HOST
+
+override CFLAGS += -DPROJECT_ROOT=$(PROJECT_ROOT)
+
+# Feature and compilation flags
+
+# Enable use of UART in I/O streams (stdin/stdout/stderr)
+ifneq ($(strip $(IOSTREAM)),)
+override CFLAGS += -D__UART_IOSTREAM
+endif
+
+# Enable UART input pattern match
+ifneq ($(strip $(MATCH)),)
+override CFLAGS += -D__UART_MATCH
+endif
+
+# Use strncmp for pattern matching
+ifneq ($(strip $(STRNCMP)),)
+override CFLAGS += -D__STRNCMP_MATCH
+endif
+
+# Emit a trigger signal that can be used by logic analyser to start capture
+ifneq ($(strip $(TRIGGER)),)
+override CFLAGS += -D__EMIT_TRIGGER
+endif
+
+# SIM denotes that source code will compiled for simulation
+ifneq ($(strip $(SIM)),)
+override CFLAGS += -D__SIMULATION -DDEVICE_NAME=$(DEVICE)
+else
+
+HAS_CONFIG = $(shell grep -o "^#define __SIMULATION.*$$" $(PROJECT_ROOT)/config/config.h)
+ifneq ($(HAS_CONFIG),)
+override CFLAGS += -DDEVICE_NAME=$(DEVICE)
+endif
+
+endif
+
+# Denotes that source code will be compiled for off-target testing
+ifneq ($(strip $(SIMTEST)),)
+override CFLAGS += -D__SIMTEST
+endif
+
+# Demo mode with serial communication program
+ifneq ($(strip $(DEMO)),)
+override CFLAGS += -D__DEMO
+endif
+
+# Enable debug build with debugging information and symbols
+ifneq ($(strip $(DEBUG)),)
+override CFLAGS += -g -D__DEBUG
+endif
+
+# Preserve compilation intermediaries
+ifneq ($(strip $(SAVE_TEPMS)),)
+override CFLAGS += -save-temps
+else
+
+HAS_CONFIG = $(shell grep -o "^#define __SAVE_TEMPS.*$$" $(PROJECT_ROOT)/config/config.h)
+ifneq ($(HAS_CONFIG),)
+override CFLAGS += -save-temps
+endif
+
+endif
+
+ifeq ($(BUILD_HOST),)
+
+OPTIMIZATION = -Os
+
+# Set the compiler optimization level
+ifneq ($(strip $(OPTIM)),)
+override CFLAGS += $(OPTIM)
+else
+override CFLAGS += $(OPTIMIZATION)
+endif
+
+endif # !BUILD_HOST
+
+ERROR_REPORTING = -Wall -Wfatal-errors
+
+ifeq ($(BUILD_HOST),)
+
+# This is needed to place .mmcu at 0x91000
+#LDFLAGS = -Wl,--relax,--gc-sections,--undefined=_mmcu,--section-start=.mmcu=0x91000
+
+ifneq ($(strip $(DEBUG)),)
+LDFLAGS += -Wl,--verbose
+endif
+
+PKG_CONFIG := $(shell command -v pkg-config)
+ifeq ($(PKG_CONFIG),)
+    $(error pkg-config is not installed or not found in the PATH. Please install it.)
+else
+    $(info pkg-config found: $(PKG_CONFIG))
+		override CFLAGS += $(shell $(PKG_CONFIG) --cflags simavr-avr)
+		INCLUDE += $(shell $(PKG_CONFIG) --cflags-only-I simavr-avr)
+		LDFLAGS += $(shell $(PKG_CONFIG) --libs simavr-avr)
+endif
+
+COMPILE = $(AVR_CC) -mmcu=$(DEVICE) -fshort-enums $(ERROR_REPORTING) $(CFLAGS) -DF_CPU=$(CLOCK) $(INCLUDE)
+ifneq ($(strip $(RELEASE)),)
+OPTIMIZATION = -Os
+CFLAGS = $(CFLAGS:-O%=-Os)
+CFLAGS = $(CFLAGS:-save-temps:)
+COMPILE = $(AVR)GCC) -mmcu=$(DEVICE) -fshort-enums $(ERROR_REPORTING) $(CFLAGS) -DF_CPU=$(CLOCK) $(INCLUDE)
+endif
+
+%.o: %.S
+	$(COMPILE) -x assembler-with-cpp -c $< -o $@
+
+%.o: %.c
+	$(COMPILE) -c $< -o $@
+
+# output assembly
+%.s: %.c
+	$(COMPILE) -S $< -o $@
+
+size: $(TARGET)
+	$(AVR_SIZE) -C --mcu=$(DEVICE) main.elf
+
+# preprocess only
+cpp: $(SOURCES)
+	for s in $^; do o=$${s%%.c}.i; $(COMPILE) -E $${s} > $$o; done
+
+# assembly lisiting
+%.s: %.c
+	$(COMPILE) -c -g -Wa,-adhln $< > $@
+
+%.S: %.o
+	$(COMPILE) -x assembler-with-cpp -c $< -o $@
+
+# disassembly
+disasm:	$(OBJECTS) $(TARGET)
+	#$(AVR_OBJDUMP) -S -d main.elf > main.lst
+	for obj in $^; do avr-objdump -d $${obj} > $${obj%%.o}.lst; done
+
+disasmall: $(OBJECTS) $(TARGET)
+	#$(AVR_OBJDUMP) -S -D main.elf > main.lst
+	for obj in $^; do avr-objdump -D $${obj} > $${obj%%.o}.lst; done
+
+# distribution
+dist:
+	@make -s clean
+	tar --exclude=.gdb* --exclude=peda-session-*.txt --exclude=.*.swp --exclude-backups --exclude-vcs --exclude-vcs-ignore -czvf $(shell basename $(shell pwd)).tar.gz ./*
+
+# simluation
+sim-gdb:
+ifneq ($(strip $(SIMAVR)),)
+	$(SIMAVR) -v -v -v -g -m $(DEVICE) -f $(CLOCK) $(TARGET)
+else
+	@echo simavr not found
+endif
+
+sim:
+ifneq ($(strip $(SIMAVR)),)
+	$(SIMAVR) -v -v -v -m $(DEVICE) -f $(CLOCK) $(TARGET)
+else
+	@echo simavr not found
+endif
+
+serial-monitor:
+	@if [ ! -f $${HOME}/.minirc.ttyACM0 ]; then \
+		echo "Do you want to install minicom configuration for device ttyACM0 in $${HOME} [y/N] ? "; \
+		read choice; \
+		if [ $${choice} = 'y' ] || [ $${choice} = 'Y' ]; then \
+			cp ./minirc.ttyACM0 $${HOME}/.minirc.ttyACM0; \
+		fi \
+	fi
+	if [ -f $${HOME}/.minirc.ttyACM0 ]; then \
+		minicom_config="ttyACM0"; \
+	fi	
+	minicom $${minicom_config}
+	#picocom --baud 9600 --databits 8 --stopbits 1 --parity n --flow none /dev/ttyACM0
+	#putty -sercfg "8,1,9600,n,N" -serial /dev/ttyACM0
+
+help:
+	@echo Flags
+	@echo "TRIGGER  Emit a trigger signal that can be used by logic analyser"
+	@echo "STDIO    Enable use of UART like stdin/stdout/stderr"
+	@echo "MATCH    Enable UART input pattern match"
+	@echo "SIM      Source code will be compiled for simulation"
+	@echo "SIMTEST  Source code will be compiled for off-target test"
+
+endif # !BUILD_HOST
