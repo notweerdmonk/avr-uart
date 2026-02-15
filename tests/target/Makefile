@@ -72,6 +72,15 @@ $(TARGET_HEX): $(TARGET)
 flash: all
 	$(AVRDUDE) -U flash:w:main.hex:i
 
+install: flash
+
+fuse:
+	$(AVRDUDE) $(FUSES)
+
+# TODO: flash bootloader
+load: all
+	@echo Nothing to do
+
 clean:
 	rm -f $(OBJECTS) $(C_DEPS) $(PREPROCESSOR_OUTPUTS) $(ASSEMBLY_OUTPUT) \
 		$(STACK_USAGE_REPORTS) $(ASSEMBLY_LISTINGS) $(TARGET_HEX) $(TARGET)

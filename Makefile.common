@@ -50,6 +50,11 @@ override CFLAGS += -DPROJECT_ROOT=$(PROJECT_ROOT)
 
 # Feature and compilation flags
 
+# Enable runtime UART configuration
+ifneq ($(strip $(RUNTIMECONF)),)
+override CFLAGS += -D__RUNTIME_CONFIG
+endif
+
 # Enable use of UART in I/O streams (stdin/stdout/stderr)
 ifneq ($(strip $(IOSTREAM)),)
 override CFLAGS += -D__UART_IOSTREAM
@@ -226,12 +231,36 @@ serial-monitor:
 	#picocom --baud 9600 --databits 8 --stopbits 1 --parity n --flow none /dev/ttyACM0
 	#putty -sercfg "8,1,9600,n,N" -serial /dev/ttyACM0
 
-help:
-	@echo Flags
-	@echo "TRIGGER  Emit a trigger signal that can be used by logic analyser"
-	@echo "STDIO    Enable use of UART like stdin/stdout/stderr"
-	@echo "MATCH    Enable UART input pattern match"
-	@echo "SIM      Source code will be compiled for simulation"
-	@echo "SIMTEST  Source code will be compiled for off-target test"
-
 endif # !BUILD_HOST
+
+help:
+	@echo "=== Build Targets ==="
+	@echo "all         			Build library and tests"
+	@echo "build-lib   			Build library only"
+	@echo "build-tests 			Build tests only"
+	@echo "clean       			Clean build artifacts"
+	@echo "flash       			Flash firmware to AVR"
+	@echo "size        			Show memory usage"
+	@echo "cpp         			Preprocess only"
+	@echo "disasm      			Generate disassembly"
+	@echo "disasmall   			Generate full disassembly"
+	@echo "sim         			Run with simavr"
+	@echo "sim-gdb     			Run with simavr in GDB mode"
+	@echo "serial-monitor  	Open serial monitor"
+	@echo ""
+	@echo "=== Build Flags ==="
+	@echo "RUNTIMECONF 			Enable runtime UART configuration"
+	@echo "IOSTREAM    			Enable UART like stdin/stdout/stderr"
+	@echo "MATCH       			Enable UART input pattern match"
+	@echo "STRNCMP     			Use strncmp for pattern matching"
+	@echo "TRIGGER     			Emit trigger signal for logic analyser"
+	@echo "SIM         			Compile for simulation"
+	@echo "SIMTEST     			Compile for off-target testing"
+	@echo "DEMO        			Demo mode with serial communication program"
+	@echo "DEBUG       			Enable debug build"
+	@echo "SAVE_TEMPS  			Preserve compilation intermediaries"
+	@echo "OPTIM       			Set compiler optimization level"
+	@echo ""
+	@echo "=== Build Variables ==="
+	@echo "DEVICE      			AVR device (default: atmega328p)"
+	@echo "CLOCK       			CPU clock frequency (default: 16000000)"

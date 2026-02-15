@@ -32,6 +32,9 @@ all: $(SUBDIRS)
 $(SUBDIRS):
 	$(MAKE) -C $@
 
+help:
+	$(MAKE) -C $(firstword $(SUBDIRS)) help
+
 clean:
 	for dir in $(SUBDIRS); do \
 		$(MAKE) -C $$dir clean; \

@@ -53,17 +53,8 @@ build-tests:
 size:
 	$(AVR_SIZE) -C --mcu=$(DEVICE) main.elf
 
-#flash: all
-#	$(AVRDUDE) -U flash:w:main.hex:i
-#
-#fuse:
-#	$(AVRDUDE) $(FUSES)
-#
-#install: flash
-#
-## TODO: flash bootloader
-#load: all
-#	@echo Nothing to do
+help:
+	$(MAKE) -C $(LIB_SRC_DIR) help
 
 clean:
 	$(MAKE) -C $(LIB_SRC_DIR) clean
