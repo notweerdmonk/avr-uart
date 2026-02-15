@@ -921,10 +921,10 @@ int main(int argc, char *argv[]) {
         i + 1
       );
 
-    if (!keep_going && result) {
-      return -1;
-    } else {
+    if (!result) {
       ++num_passed;
+    } else if (!keep_going) {
+      return -1;
     }
   }
 
