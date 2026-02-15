@@ -23,7 +23,7 @@
 
 .DEFAULT_GOAL = all
 
-SUBDIRS := $(filter-out Makefile run_tests,$(wildcard *))
+SUBDIRS := $(filter-out Makefile run_tests %.md,$(wildcard *))
 
 .PHONY: $(SUBDIRS)
 
