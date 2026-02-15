@@ -357,11 +357,6 @@ int open_serial_device(const char *device) {
   return serdev;
 }
 
-/* TODO: pass uart_config as argument */
-#ifdef __RUNTIME_CONFIG
-
-#else /* !__RUNTIME_CONFIG */
-
 /**
  * @brief Configure serial port settings
  *
@@ -372,24 +367,24 @@ int open_serial_device(const char *device) {
  * @return 0 on success, -1 on failure
  */
 int setup_serial_device(int serdev, void *param) {
-#ifdef __RUNTIME_CONFIG
+#ifdef AVR_UART_RUNTIME_CONFIG
 
   if (!config) {
     return -1;
   }
 
-#else /* !__RUNTIME_CONFIG */
+#else /* !AVR_UART_RUNTIME_CONFIG */
 
   (void)param;
 
-#endif /* __RUNTIME_CONFIG */
+#endif /* AVR_UART_RUNTIME_CONFIG */
 
   int baud_rate;
   char char_size;
   char stop_bits;
   char parity;
 
-#ifdef __RUNTIME_CONFIG
+#ifdef AVR_UART_RUNTIME_CONFIG
 
   struct uart_config *cfgptr = param;
   baud_rate = cfgptr->baud_rate;
@@ -397,14 +392,14 @@ int setup_serial_device(int serdev, void *param) {
   stop_bits = cfgptr->stop_bits;
   parity = cfgptr->parity;
 
-#else /* !__RUNTIME_CONFIG */
+#else /* !AVR_UART_RUNTIME_CONFIG */
 
   baud_rate = UART_BAUD_DEFAULT;
   char_size = UART_CHAR_SIZE;
   stop_bits = UART_STOP_BITS;
   parity = UART_PARITY;
 
-#endif /* __RUNTIME_CONFIG */
+#endif /* AVR_UART_RUNTIME_CONFIG */
 
   struct termios settings;
   tcgetattr(serdev, &settings);
@@ -468,8 +463,6 @@ int setup_serial_device(int serdev, void *param) {
 
   return 0;;
 }
-
-#endif /* __RUNTIME_CONFIG */
 
 /**
  * @brief Send data over serial port
@@ -739,7 +732,7 @@ int partial_recv_test(int nargs, ...) {
 /**
  * @brief Pattern match data structure
  */
-#ifdef __UART_MATCH
+#ifdef AVR_UART_MATCH
 struct _match_data {
   const char *pattern;
   const char *response;
@@ -834,7 +827,7 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-#ifdef __RUNTIME_CONFIG
+#ifdef AVR_UART_RUNTIME_CONFIG
 
   setup_serial_device(
       serdev,
@@ -846,14 +839,14 @@ int main(int argc, char *argv[]) {
       }
     );
 
-#else /* !__RUNTIME_CONFIG */
+#else /* !AVR_UART_RUNTIME_CONFIG */
 
   setup_serial_device(serdev, NULL);
 
-#endif /* __RUNTIME_CONFIG */
+#endif /* AVR_UART_RUNTIME_CONFIG */
 
 
-#ifndef __SIMTEST
+#ifndef AVR_UART_SIMTEST
   /* Discard any data received over serial port */
   tcflush(serdev, TCIFLUSH);
 #endif
@@ -901,7 +894,7 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-#ifdef __UART_MATCH
+#ifdef AVR_UART_MATCH
   int num_passed = 0;
   for (long unsigned int i = 0;
       i < sizeof(match_data) / sizeof(struct _match_data) ; i++) {

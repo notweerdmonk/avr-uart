@@ -21,7 +21,7 @@
  * SOFTWARE.
 */
 
-#ifdef __UART_MATCH
+#ifdef AVR_UART_MATCH
 
 /**
  * @file match.c
@@ -32,7 +32,7 @@
  * specific character sequences in incoming UART data and triggers
  * callback handlers.
  *
- * @note This file is only compiled when __UART_MATCH is defined
+ * @note This file is only compiled when AVR_UART_MATCH is defined
  */
 
 #include <stdint.h>
@@ -95,12 +95,12 @@ void uart_deregister_match(const char *str) {
   for (; i < match.match_idx_max; i++) {
     struct _match *p_match = &match.match[i];
 
-#ifdef __STRNCMP_MATCH
+#ifdef AVR_UART_STRNCMP_MATCH
     if (strncmp(p_match->seq, str, p_match->len) == 0) {
       found = 1;
       break;
     }
-#else
+#else /* !AVR_UART_STRNCMP_MATCH */
     if (0 == ({
           uint8_t ret = 0;
           size_t n = p_match->len;
@@ -123,7 +123,7 @@ void uart_deregister_match(const char *str) {
       found = 1;
       break;
     }
-#endif
+#endif /* AVR_UART_STRNCMP_MATCH */
   }
 
   if (found) {
@@ -198,4 +198,4 @@ void uart_do_match(uint8_t udr) {
   }
 }
 
-#endif /* __UART_MATCH */
+#endif /* AVR_UART_MATCH */

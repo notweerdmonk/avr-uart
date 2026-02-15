@@ -97,7 +97,7 @@ struct _uart {
  * @internal
  * @brief External pattern matching handler
  *
- * Called from RX ISR when __UART_MATCH is enabled to check
+ * Called from RX ISR when AVR_UART_MATCH is enabled to check
  * incoming bytes against registered patterns.
  *
  * @param udr The received byte from UART data register
@@ -108,7 +108,7 @@ extern void uart_do_match(uint8_t udr);
 /* Functions */
 /*****************************************************************************/
 
-#ifdef __UART_STDIO
+#ifdef AVR_UART_STDIO
 
 /**
  * @internal
@@ -159,9 +159,9 @@ static
 FILE __uart_iostream = FDEV_SETUP_STREAM(uart_stream_putchar,
     uart_stream_getchar, _FDEV_SETUP_RW);
 
-#endif /* __UART_STDIO */
+#endif /* AVR_UART_STDIO */
 
-#ifdef __RUNTIME_CONFIG
+#ifdef AVR_UART_RUNTIME_CONFIG
 
 void uart_setup(struct uart_config *config) {
   if (!config) {
@@ -177,7 +177,7 @@ void uart_setup(struct uart_config *config) {
   port_uart_set_stop_bits(config->stop_bits);
   port_uart_set_parity(config->parity);
 
-#else
+#else /* !AVR_UART_RUNTIME_CONFIG */
 
 void uart_setup() {
 
@@ -186,13 +186,13 @@ void uart_setup() {
   port_uart_set_stop_bits(UART_STOP_BITS);
   port_uart_set_parity(UART_PARITY);
 
-#endif /* __RUNTIME_CONFIG */
+#endif /* AVR_UART_RUNTIME_CONFIG */
 
   port_uart_setup();
 
-#ifdef __UART_STDIO
+#ifdef AVR_UART_STDIO
   stdout = stdin = stderr = &__uart_iostream;
-#endif
+#endif /* AVR_UART_STDIO */
 
   uart_flush();
 }
@@ -234,12 +234,16 @@ ISR(port_udre_vect, ISR_BLOCK) {
  */
 ISR(port_rxc_vect, ISR_BLOCK) {
 
-#ifdef __UART_MATCH
+#ifdef AVR_UART_MATCH
+
   uint8_t udr = PORT_UDR;
   uart_do_match(udr);
-#else
+
+#else /* !AVR_UART_MATCH */
+
 #define udr PORT_UDR
-#endif
+
+#endif /* AVR_UART_MATCH */
 
   uart.rx_buffer[uart.rx_in] = udr;
   ++uart.rx_count;

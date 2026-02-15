@@ -61,7 +61,7 @@ RUNTIMECONF=1 make build-lib
 Then in your code:
 
 ```c
-#define __RUNTIME_CONFIG
+#define AVR_UART_RUNTIME_CONFIG
 #include <uart.h>
 
 struct uart_config cfg = {
@@ -80,11 +80,11 @@ Copy the source files into your project and compile along with your code:
 1. Copy `include/`, `src/`, and `port/` directories to your AVR project
 2. Add `src/uart.c` and `src/match.c` (if using pattern matching) to your build
 3. Configure your build system to include the appropriate include paths
-4. Define feature flags (like `__UART_MATCH`, `__UART_STDIO`, etc.) in your build
+4. Define feature flags (like `AVR_UART_MATCH`, `AVR_UART_STDIO`, etc.) in your build
 
 ```bash
 # In your project Makefile:
-CFLAGS += -I$(UART_DIR)/include -I$(UART_DIR)/port -D__UART_MATCH
+CFLAGS += -I$(UART_DIR)/include -I$(UART_DIR)/port -DAVR_UART_MATCH
 SRCS += $(UART_DIR)/src/uart.c $(UART_DIR)/src/match.c
 ```
 
@@ -111,10 +111,10 @@ Define these macros in `uart_config.h` or before including `uart.h`:
 
 ### Runtime Configuration
 
-Define `__RUNTIME_CONFIG` before including `uart.h`:
+Define `AVR_UART_RUNTIME_CONFIG` before including `uart.h`:
 
 ```c
-#define __RUNTIME_CONFIG
+#define AVR_UART_RUNTIME_CONFIG
 #include <uart.h>
 
 int main(void) {
@@ -140,37 +140,37 @@ Uncomment the desired definitions in `config/config.h`:
 
 ```c
 /* Enable use of UART in I/O streams (stdin/stdout/stderr) */
-//#define __UART_IOSTREAM 1
+//#define AVR_UART_IOSTREAM 1
 
 /* Enable runtime UART configuration (call uart_setup with config struct) */
-//#define __RUNTIME_CONFIG 1
+//#define AVR_UART_RUNTIME_CONFIG 1
 
 /* Enable UART input pattern match */
-//#define __UART_MATCH 1
+//#define AVR_UART_MATCH 1
 
 /* Use strncmp for pattern matching */
-//#define __STRNCMP_MATCH 1
+//#define AVR_UART_STRNCMP_MATCH 1
 
 /* Emit a trigger signal that can be used by logic analyser to start capture */
-//#define __EMIT_TRIGGER 1
+//#define AVR_UART_EMIT_TRIGGER 1
 
 /* SIM denotes that source code will compiled for simulation */
-//#define __SIMULATION 1
+//#define AVR_UART_SIMULATION 1
 
 /* Denotes that source code will be compiled for off-target testing */
-//#define __SIMTEST 1
+//#define AVR_UART_SIMTEST 1
 
 /* Demo mode with serial communication program */
-//#define __DEMO 1
+//#define AVR_UART_DEMO 1
 
 /* Enable debug build with debugging information and symbols */
-//#define __DEBUG 1
+//#define AVR_UART_DEBUG 1
 
 /* Preserve compilation intermediaries */
-//#define __SAVE_TEPMS 1
+//#define AVR_UART_SAVE_TEPMS 1
 
 /* Set the compiler optimization level (-O0, -O1, -O2, -O3, -Os, etc.) */
-//#define __OPTIM -Os
+//#define AVR_UART_OPTIM -Os
 ```
 
 #### 2. Via Command Line
@@ -194,8 +194,8 @@ SAVETEMPS=1 make        # Preserve intermediate files
 Define flags directly in your source code before including uart.h:
 
 ```c
-#define __UART_MATCH
-#define __UART_STDIO
+#define AVR_UART_MATCH
+#define AVR_UART_STDIO
 #include <uart.h>
 ```
 
@@ -243,7 +243,7 @@ void uart_flush_tx(void);                     // Flush transmit buffer (waits fo
 
 ### Pattern Matching (Optional)
 
-Enable with `__UART_MATCH` define:
+Enable with `AVR_UART_MATCH` define:
 
 ```c
 void on_command(void *data) {
@@ -275,10 +275,10 @@ int main(void) {
 
 ## STDIO Integration
 
-Define `__UART_STDIO` before including `uart.h` to enable stdio-style I/O:
+Define `AVR_UART_STDIO` before including `uart.h` to enable stdio-style I/O:
 
 ```c
-#define __UART_STDIO
+#define AVR_UART_STDIO
 #include <uart.h>
 
 int main(void) {
@@ -300,7 +300,7 @@ IOSTREAM=1 make
 
 # Or uncomment in config/config.h:
 # /* Enable use of UART in I/O streams (stdin/stdout/stderr) */
-# //#define __UART_IOSTREAM 1
+# //#define AVR_UART_IOSTREAM 1
 ```
 
 ## Building

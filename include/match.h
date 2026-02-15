@@ -37,7 +37,7 @@
  * - Non-blocking pattern detection in ISR context
  * - Callback functions executed when patterns are matched
  *
- * @note This feature requires __UART_MATCH to be defined
+ * @note This feature requires AVR_UART_MATCH to be defined
  */
 
 #include <stdint.h>

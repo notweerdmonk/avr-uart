@@ -43,7 +43,7 @@
 #include <avr/pgmspace.h>
 #include <uart_config.h>
 #include <match.h>
-#ifdef __UART_STDIO
+#ifdef AVR_UART_STDIO
 #include <stdio.h>
 #endif
 
@@ -92,7 +92,7 @@
  */
 #define c_NEWLINE_STRING "\x0d\x0a"
 
-#ifdef __RUNTIME_CONFIG
+#ifdef AVR_UART_RUNTIME_CONFIG
 
 /**
  * @brief Initialize UART with runtime configuration
@@ -104,7 +104,7 @@
  *               character size, stop bits, and parity settings
  *
  * @note If config is NULL or baud_rate is 0, defaults will be used
- * @note This function is only available when __RUNTIME_CONFIG is defined
+ * @note This function is only available when AVR_UART_RUNTIME_CONFIG is defined
  *
  * @example
  * @code
@@ -119,13 +119,13 @@
  */
 void uart_setup(struct uart_config *config);
 
-#else /* !__RUNTIME_CONFIG */
+#else /* !AVR_UART_RUNTIME_CONFIG */
 
 /**
  * @brief Initialize UART with compile-time configuration
  *
  * Configures the UART hardware using the settings defined in uart_config.h
- * at compile time. This is the default mode when __RUNTIME_CONFIG is
+ * at compile time. This is the default mode when AVR_UART_RUNTIME_CONFIG is
  * not defined.
  *
  * @note Configuration is determined by UART_BAUD_RATE, UART_CHAR_SIZE,
@@ -144,7 +144,7 @@ void uart_setup(struct uart_config *config);
  */
 void uart_setup();
 
-#endif /* __RUNTIME_CONFIG */
+#endif /* AVR_UART_RUNTIME_CONFIG */
 
 /**
  * @brief Flush the receive buffer

@@ -59,7 +59,7 @@
 #define TRIGGER_PORT PORTB
 #define TRIGGER_PIN  PB4
 
-#if defined __SIMULATION || defined __SIMTEST
+#if defined AVR_UART_SIMULATION || defined AVR_UART_SIMTEST
 
 #include <avr/sleep.h>
 
@@ -81,12 +81,13 @@ const struct avr_mmcu_vcd_trace_t _trace[] _MMCU_ = {
   { AVR_MCU_VCD_SYMBOL("UDR0"), .what = (void*)&UDR0, },
 };
 
-#endif
+#endif /* AVR_UART_SIMULATION || defined AVR_UART_SIMTEST */
 
 /**
  * @brief Pattern match callback data structure
  */
-#ifdef __UART_MATCH
+#ifdef AVR_UART_MATCH
+
 struct match_cb_data {
   const char *str;
   int len;
@@ -112,7 +113,8 @@ void uart_match_cb(void *data) {
       ((struct match_cb_data*)data)->len
     );
 }
-#endif
+
+#endif /* AVR_UART_MATCH */
 
 const char pattern1[] = "UUUU"; /* Generates a square wave with 8N1 */
 const char pattern2[] = "AAAAAAAAAAAAAAAA";
@@ -142,7 +144,7 @@ const char erstr[] = "recv ER";
 int main() {
   const char *teststring = pattern4;
 
-#ifdef __RUNTIME_CONFIG
+#ifdef AVR_UART_RUNTIME_CONFIG
 
   uart_setup(
       &(struct uart_config){
@@ -153,18 +155,19 @@ int main() {
       }
     );
 
-#else /* !__RUNTIME_CONFIG */
+#else /* !AVR_UART_RUNTIME_CONFIG */
 
   uart_setup();
 
-#endif /* __RUNTIME_CONFIG */
+#endif /* AVR_UART_RUNTIME_CONFIG */
   
   /* us per byte = UART_BAUD_RATE / (UART_CHAR_SIZE + UART_STOP_BITS) */
   double us_per_byte = (double)UART_BAUD_RATE / 8;
 
   sei();
 
-#if defined __EMIT_TRIGGER
+#ifdef AVR_UART_EMIT_TRIGGER
+
   /* Wait a while */
   asm volatile ("ldi r24, 255 \n\t"
                 "loop1%=:     \n\t"
@@ -179,21 +182,25 @@ int main() {
                );
   set_output_pin(TRIGGER_DDR, TRIGGER_PIN);
   set_pin(TRIGGER_PORT, TRIGGER_PIN);
-#endif
 
-#ifdef __UART_STDIO
+#endif /* AVR_UART_EMIT_TRIGGER */
+
+#ifdef AVR_UART_STDIO
+
   puts(teststring);
-#else
+
+#else /* !AVR_UART_STDIO */
+
   uart_sendln(teststring, strlen(teststring));
-#endif
+
+#endif /* AVR_UART_STDIO */
 
   /* Let the characters be send over UART by UDRE interrupt */
   _delay_us(us_per_byte * 53);
 
-  /*
-   * Simulation with simavr cannot facilitate sending input to UART
-   */
-#if !defined __SIMULATION && !defined __DEMO
+  /* Simulation with simavr cannot facilitate sending input to UART */
+#if !defined AVR_UART_SIMULATION && !defined AVR_UART_DEMO
+
   size_t teststringlen = strlen(teststring);
   char buffer[teststringlen + 1];
 
@@ -224,9 +231,10 @@ int main() {
 
   /* Let the characters be send over UART by UDRE interrupt */
   _delay_us(10000);
-#endif /* __SIMULATION */
 
-#if defined __UART_MATCH && !defined __SIMULATION && !defined __DEMO
+#endif /* !AVR_UART_SIMULATION && !AVR_UART_DEMO */
+
+#if defined AVR_UART_MATCH && !defined AVR_UART_SIMULATION && !defined AVR_UART_DEMO
 
   const char str1[] = "Match 1";
   const char str2[] = "Match 2";
@@ -273,19 +281,19 @@ int main() {
 
   _delay_us(us_per_byte * sizeof(str4));
 
-#endif /* __UART_MATCH && !__SIMULATION */
+#endif /* AVR_UART_MATCH && !AVR_UART_SIMULATION && !AVR_UART_DEMO */
 
-#if (defined __SIMULATION || defined __SIMTEST) && !defined __DEMO
+#if (defined AVR_UART_SIMULATION || defined AVR_UART_SIMTEST) && !defined AVR_UART_DEMO
 
   /* Sleep with interrupts disabled so that simavr can exit */
   cli();
   sleep_cpu();
 
-#else
+#else /* !(AVR_UART_SIMULATION || AVR_UART_SIMTEST) || AVR_UART_DEMO */
 
   for(;;uart_send_byte(uart_recv_byte()));
 
-#endif
+#endif /* AVR_UART_SIMULATION || AVR_UART_SIMTEST) && !AVR_UART_DEMO */
 
   return 0;
 }

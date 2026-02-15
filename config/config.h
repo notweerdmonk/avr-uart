@@ -30,36 +30,36 @@
  */
 
 /* Enable runtime UART configuration (call uart_setup with config struct) */
-//#define __RUNTIME_CONFIG
+//#define AVR_UART_RUNTIME_CONFIG
 
 /* Enable use of UART in I/O streams (stdin/stdout/stderr) */
-//#define __UART_IOSTREAM
+//#define AVR_UART_UART_IOSTREAM
 
 /* Enable UART input pattern match */
-//#define __UART_MATCH
+//#define AVR_UART_UART_MATCH
 
 /* Use strncmp for pattern matching */
-//#define __STRNCMP_MATCH
+//#define AVR_UART_STRNCMP_MATCH
 
 /* Emit a trigger signal that can be used by logic analyser to start capture */
-//#define __EMIT_TRIGGER
+//#define AVR_UART_EMIT_TRIGGER
 
 /* SIM denotes that source code will compiled for simulation */
-//#define __SIMULATION
+//#define AVR_UART_SIMULATION
 
 /* Denotes that source code will be compiled for off-target testing */
-//#define __SIMTEST
+//#define AVR_UART_SIMTEST
 
 /* Demo mode with serial communication program */
-//#define __DEMO
+//#define AVR_UART_DEMO
 
 /* Enable debug build with debugging information and symbols */
-//#define __DEBUG
+//#define AVR_UART_DEBUG
 
 /* Preserve compilation intermediaries */
-//#define __SAVE_TEMPS
+//#define AVR_UART_SAVE_TEMPS
 
 /* Set the compiler optimization level (-O0, -O1, -O2, -O3, -Os, etc.) */
-//#define __OPTIM -O2
+//#define AVR_UART_OPTIM -O2
 
 #endif /* _AVR_UART_CONFIG_H_ */

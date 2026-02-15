@@ -52,35 +52,35 @@ override CFLAGS += -DPROJECT_ROOT=$(PROJECT_ROOT)
 
 # Enable runtime UART configuration
 ifneq ($(strip $(RUNTIMECONF)),)
-override CFLAGS += -D__RUNTIME_CONFIG
+override CFLAGS += -DAVR_UART_RUNTIME_CONFIG
 endif
 
 # Enable use of UART in I/O streams (stdin/stdout/stderr)
 ifneq ($(strip $(IOSTREAM)),)
-override CFLAGS += -D__UART_IOSTREAM
+override CFLAGS += -DAVR_UART_IOSTREAM
 endif
 
 # Enable UART input pattern match
 ifneq ($(strip $(MATCH)),)
-override CFLAGS += -D__UART_MATCH
+override CFLAGS += -DAVR_UART_MATCH
 endif
 
 # Use strncmp for pattern matching
 ifneq ($(strip $(STRNCMP)),)
-override CFLAGS += -D__STRNCMP_MATCH
+override CFLAGS += -DAVR_UART_STRNCMP_MATCH
 endif
 
 # Emit a trigger signal that can be used by logic analyser to start capture
 ifneq ($(strip $(TRIGGER)),)
-override CFLAGS += -D__EMIT_TRIGGER
+override CFLAGS += -DAVR_UART_EMIT_TRIGGER
 endif
 
 # SIM denotes that source code will compiled for simulation
 ifneq ($(strip $(SIM)),)
-override CFLAGS += -D__SIMULATION -DDEVICE_NAME=$(DEVICE)
+override CFLAGS += -DAVR_UART_SIMULATION -DDEVICE_NAME=$(DEVICE)
 else
 
-HAS_CONFIG = $(shell grep -o "^#define __SIMULATION.*$$" $(PROJECT_ROOT)/config/config.h)
+HAS_CONFIG = $(shell grep -o "^#define AVR_UART_SIMULATION.*$$" $(PROJECT_ROOT)/config/config.h)
 ifneq ($(HAS_CONFIG),)
 override CFLAGS += -DDEVICE_NAME=$(DEVICE)
 endif
@@ -89,17 +89,17 @@ endif
 
 # Denotes that source code will be compiled for off-target testing
 ifneq ($(strip $(SIMTEST)),)
-override CFLAGS += -D__SIMTEST
+override CFLAGS += -DAVR_UART_SIMTEST
 endif
 
 # Demo mode with serial communication program
 ifneq ($(strip $(DEMO)),)
-override CFLAGS += -D__DEMO
+override CFLAGS += -DAVR_UART_DEMO
 endif
 
 # Enable debug build with debugging information and symbols
 ifneq ($(strip $(DEBUG)),)
-override CFLAGS += -g -D__DEBUG
+override CFLAGS += -g -DAVR_UART_DEBUG
 endif
 
 # Preserve compilation intermediaries
@@ -107,7 +107,7 @@ ifneq ($(strip $(SAVETEMPS)),)
 override CFLAGS += -save-temps
 else
 
-HAS_CONFIG = $(shell grep -o "^#define __SAVE_TEMPS.*$$" $(PROJECT_ROOT)/config/config.h)
+HAS_CONFIG = $(shell grep -o "^#define AVR_UART_SAVE_TEMPS.*$$" $(PROJECT_ROOT)/config/config.h)
 ifneq ($(HAS_CONFIG),)
 override CFLAGS += -save-temps
 endif
@@ -123,7 +123,7 @@ ifneq ($(strip $(OPTIM)),)
 override CFLAGS += $(OPTIM)
 else
 
-HAS_CONFIG = $(shell grep -o "^#define __OPTIM.*$$" $(PROJECT_ROOT)/config/config.h)
+HAS_CONFIG = $(shell grep -o "^#define AVR_UART_OPTIM.*$$" $(PROJECT_ROOT)/config/config.h)
 ifneq ($(HAS_CONFIG),)
 override CFLAGS += $(shell echo "$(HAS_CONFIG)" | cut -d' ' -f3)
 else
