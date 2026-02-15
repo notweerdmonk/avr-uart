@@ -379,6 +379,54 @@ make -C tests/target flash
 cd tests/target && make flash
 ```
 
+## Simulation
+
+The project supports simulation using [simavr](https://github.com/buserror/simavr).
+
+### Running Simulation
+
+```bash
+# Build with SIM flag
+SIM=1 make -C tests/target
+
+# Run simulation
+make -C tests/target sim
+
+# Or run with GDB debug
+make -C tests/target sim-gdb
+```
+
+### Off-Target Testing
+
+For testing without actual hardware, use SIMTEST to compile for off-target testing:
+
+```bash
+# Build with SIMTEST flag
+SIMTEST=1 make -C tests/target
+```
+
+This allows running the target firmware test program in a simulated environment.
+
+### VCD Trace Generation
+
+When compiled with `SIM=1`, the target firmware generates VCD (Value Change Dump) files that can be viewed in GTKWave. The traces include:
+- TxD (transmit signal)
+- RxD (receive signal)
+- Trigger signal (if enabled)
+- UDR0 (UART data register)
+
+### Viewing Simulation Results
+
+Open the generated VCD file in GTKWave:
+
+```bash
+gtkwave simulation/atmega328p_uart_trace.vcd &
+```
+
+![Simulation waveform](screenshots/sim_9600_8N1.png)
+
+The waveform shows UART communication at 9600 baud with 8N1 format (8 data bits, no parity, 1 stop bit).
+
 ## Project Structure
 
 ```
@@ -393,7 +441,6 @@ avr-uart/
 ├── port/                # Hardware abstraction
 │   ├── port.h           # Port interface
 │   └── mega328p/        # ATmega328P specific code
-├── examples/            # Example programs
 ├── tests/               # Test applications
 │   ├── host/            # Host driver program
 │   │   ├── uart_test.c # Host test driver
@@ -410,3 +457,7 @@ avr-uart/
 ## License
 
 MIT License - see LICENSE file for details.
+
+---
+
+Documentation generated with [OpenCode](https://opencode.ai) (minimax-m2.5-free model).
