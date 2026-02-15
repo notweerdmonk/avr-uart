@@ -155,6 +155,10 @@ else
 		LDFLAGS += $(shell $(PKG_CONFIG) --libs simavr-avr)
 endif
 
+ifeq ($(strip $(SIMAVR)),)
+SIMAVR := $(shell command -v simavr)
+endif
+
 COMPILE = $(AVR_CC) -mmcu=$(DEVICE) -fshort-enums $(ERROR_REPORTING) $(CFLAGS) -DF_CPU=$(CLOCK) $(INCLUDE)
 ifneq ($(strip $(RELEASE)),)
 OPTIMIZATION = -Os
