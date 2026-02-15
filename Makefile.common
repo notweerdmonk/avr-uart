@@ -174,7 +174,7 @@ endif
 	$(COMPILE) -S $< -o $@
 
 size: $(TARGET)
-	$(AVR_SIZE) -C --mcu=$(DEVICE) main.elf
+	$(AVR_SIZE) -C --mcu=$(DEVICE) $^
 
 # preprocess only
 cpp: $(SOURCES)
