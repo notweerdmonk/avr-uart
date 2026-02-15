@@ -123,14 +123,14 @@ Uncomment the desired definitions in `config/config.h`:
 Pass flags to make:
 
 ```bash
-IOSTREAM=1 make          # Enable STDIO
-RUNTIMECONF=1 make        # Enable runtime configuration
-MATCH=1 make             # Enable pattern matching
-TRIGGER=1 make           # Enable trigger signal
-SIM=1 make               # Compile for simulation
-SIMTEST=1 make           # Compile for off-target testing
-DEMO=1 make              # Demo mode
-DEBUG=1 make             # Debug build
+IOSTREAM=1 make         # Enable STDIO
+RUNTIMECONF=1 make      # Enable runtime configuration
+MATCH=1 make            # Enable pattern matching
+TRIGGER=1 make          # Enable trigger signal
+SIM=1 make              # Compile for simulation
+SIMTEST=1 make          # Compile for off-target testing
+DEMO=1 make             # Demo mode
+DEBUG=1 make            # Debug build
 SAVETEMPS=1 make        # Preserve intermediate files
 ```
 
@@ -149,41 +149,41 @@ Define flags directly in your source code before including uart.h:
 ### Initialization
 
 ```c
-void uart_setup();              // Compile-time config
-void uart_setup(&cfg);         // Runtime config
+void uart_setup();                            // Compile-time config
+void uart_setup(&cfg);                        // Runtime config
 ```
 
 ### Sending Data
 
 ```c
-void uart_send_byte(char c);           // Send single byte (blocking)
-char uart_try_send_byte(char c);       // Send single byte (non-blocking)
+void uart_send_byte(char c);                  // Send single byte (blocking)
+char uart_try_send_byte(char c);              // Send single byte (non-blocking)
 void uart_send(const char *str, size_t len);  // Send string
-void uart_pgm_send(PGM_P str);         // Send from flash memory
-void uart_send_uint(unsigned int u);   // Send unsigned int
-void uart_send_int(int n);             // Send signed int
-void uart_send_float(float f, uint8_t m);  // Send float
-void uart_newline(void);                // Send CRLF
-#define uart_sendln(str, len)          // Macro: send + newline
-void uart_clear(void);                  // Clear terminal screen
+void uart_pgm_send(PGM_P str);                // Send from flash memory
+void uart_send_uint(unsigned int u);          // Send unsigned int
+void uart_send_int(int n);                    // Send signed int
+void uart_send_float(float f, uint8_t m);     // Send float
+void uart_newline(void);                      // Send CRLF
+#define uart_sendln(str, len)                 // Macro: send + newline
+void uart_clear(void);                        // Clear terminal screen
 ```
 
 ### Receiving Data
 
 ```c
-char uart_recv_byte(void);              // Receive byte (blocking)
-char uart_try_recv_byte(void);          // Receive byte (non-blocking)
-size_t uart_recv(char *str, size_t n); // Receive string
-char uart_peek_byte(void);              // Peek at next byte
-size_t uart_peek(char *str, size_t n); // Peek at multiple bytes
+char uart_recv_byte(void);                    // Receive byte (blocking)
+char uart_try_recv_byte(void);                // Receive byte (non-blocking)
+size_t uart_recv(char *str, size_t n);        // Receive string
+char uart_peek_byte(void);                    // Peek at next byte
+size_t uart_peek(char *str, size_t n);        // Peek at multiple bytes
 ```
 
 ### Buffer Management
 
 ```c
-void uart_flush_rx(void);   // Flush receive buffer
-void uart_flush_tx(void);   // Flush transmit buffer (waits for completion)
-#define uart_flush()        // Macro: flush both buffers
+void uart_flush_rx(void);                     // Flush receive buffer
+void uart_flush_tx(void);                     // Flush transmit buffer (waits for completion)
+#define uart_flush()                          // Macro: flush both buffers
 ```
 
 ### Pattern Matching (Optional)
@@ -208,12 +208,12 @@ int main(void) {
 ### Character Constants
 
 ```c
-#define ascii(c)         // Convert digit to ASCII
-#define c_RETURN         // Carriage return (0x0D)
-#define c_NEWLINE        // Newline (0x0A)
-#define c_TAB            // Tab (0x09)
-#define c_BKSPACE        // Backspace (0x08)
-#define c_ESCAPE         // Escape (0x1B)
+#define ascii(c)              // Convert digit to ASCII
+#define c_RETURN              // Carriage return (0x0D)
+#define c_NEWLINE             // Newline (0x0A)
+#define c_TAB                 // Tab (0x09)
+#define c_BKSPACE             // Backspace (0x08)
+#define c_ESCAPE              // Escape (0x1B)
 #define c_CLEARSCREEN_STRING  // ANSI clear screen
 #define c_NEWLINE_STRING      // CRLF string
 ```
