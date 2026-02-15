@@ -70,7 +70,6 @@
   STRINGIFY(PROJECT_ROOT)STRINGIFY(/simulation/)\
   STRINGIFY(m)STRINGIFY(_uart_trace.vcd)
 
-//#include </usr/include/simavr/avr/avr_mcu_section.h>
 #include <avr_mcu_section.h>
 AVR_MCU(F_CPU, MCU_NAME(DEVICE_NAME));
 AVR_MCU_VCD_FILE(VCD_FILE(DEVICE_NAME), 1000);
@@ -94,6 +93,11 @@ struct match_cb_data {
 };
 
 /**
+ * @brief Count number of successful matches
+ */
+static volatile char num_matches = 0;
+
+/**
  * @brief Pattern match callback handler
  *
  * Called by UART module when a registered pattern is matched.
@@ -102,6 +106,7 @@ struct match_cb_data {
  * @param data Pointer to match_cb_data structure
  */
 void uart_match_cb(void *data) {
+  ++num_matches;
   uart_send(
       ((struct match_cb_data*)data)->str,
       ((struct match_cb_data*)data)->len
@@ -154,6 +159,9 @@ int main() {
 
 #endif /* __RUNTIME_CONFIG */
   
+  /* us per byte = UART_BAUD_RATE / (UART_CHAR_SIZE + UART_STOP_BITS) */
+  double us_per_byte = (double)UART_BAUD_RATE / 8;
+
   sei();
 
 #if defined __EMIT_TRIGGER
@@ -180,10 +188,7 @@ int main() {
 #endif
 
   /* Let the characters be send over UART by UDRE interrupt */
-  /*
-   * us per byte = UART_BAUD_RATE / (UART_CHAR_SIZE + UART_STOP_BITS)
-   */
-  _delay_us((double)UART_BAUD_RATE / 8 * 53);
+  _delay_us(us_per_byte * 53);
 
   /*
    * Simulation with simavr cannot facilitate sending input to UART
@@ -196,13 +201,14 @@ int main() {
   buffer[teststringlen] = '\0';
 
   if (!strncmp(teststring, buffer, teststringlen)) {
-    uart_send(okstr, strlen(okstr));
+    uart_send(okstr, sizeof(okstr) - 1);
   } else {
-    uart_send(erstr, strlen(erstr));
+    uart_send(erstr, sizeof(erstr) - 1);
   }
 
   /* Let the characters be send over UART by UDRE interrupt */
-  _delay_us(((double)UART_BAUD_RATE / 8 * strlen(okstr)) + 1000);
+  _delay_us(us_per_byte * sizeof(okstr)); // no size - 1 as we need some extra
+                                          // time
 
   /* Actually consume data from UART buffer */
   uart_recv(buffer, teststringlen);
@@ -211,22 +217,16 @@ int main() {
   buffer[len] = '\0';
  
   if (!strncmp(teststring, buffer, teststringlen / 2)) {
-    uart_send(okstr, strlen(okstr));
+    uart_send(okstr, sizeof(okstr) - 1);
   } else {
-    uart_send(erstr, strlen(erstr));
+    uart_send(erstr, sizeof(erstr) - 1);
   }
 
   /* Let the characters be send over UART by UDRE interrupt */
   _delay_us(10000);
 #endif /* __SIMULATION */
 
-#if defined __SIMULATION || defined __SIMTEST
-
-  /* Sleep with interrupts disabled so that simavr can exit */
-  cli();
-  sleep_cpu();
-
-#elif defined __UART_MATCH
+#if defined __UART_MATCH && !defined __SIMULATION && !defined __DEMO
 
   const char str1[] = "Match 1";
   const char str2[] = "Match 2";
@@ -266,9 +266,20 @@ int main() {
   uart_deregister_match("123");
   uart_register_match("1234", uart_match_cb, (void*)&data4);
 
-  for (;;) {
+  /* Six matches shall succeed */
+  while (num_matches < 6) {
     uart_check_match();
   }
+
+  _delay_us(us_per_byte * sizeof(str4));
+
+#endif /* __UART_MATCH && !__SIMULATION */
+
+#if (defined __SIMULATION || defined __SIMTEST) && !defined __DEMO
+
+  /* Sleep with interrupts disabled so that simavr can exit */
+  cli();
+  sleep_cpu();
 
 #else
 
