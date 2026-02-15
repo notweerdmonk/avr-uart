@@ -117,7 +117,14 @@ OPTIMIZATION = -Os
 ifneq ($(strip $(OPTIM)),)
 override CFLAGS += $(OPTIM)
 else
+
+HAS_CONFIG = $(shell grep -o "^#define __OPTIM.*$$" $(PROJECT_ROOT)/config/config.h)
+ifneq ($(HAS_CONFIG),)
+override CFLAGS += $(shell echo "$(HAS_CONFIG)" | cut -d' ' -f3)
+else
 override CFLAGS += $(OPTIMIZATION)
+endif
+
 endif
 
 endif # !BUILD_HOST
