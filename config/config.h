@@ -30,34 +30,34 @@
  */
 
 /* Enable runtime UART configuration (call uart_setup with config struct) */
-//#define __RUNTIME_CONFIG 1
+//#define __RUNTIME_CONFIG
 
 /* Enable use of UART in I/O streams (stdin/stdout/stderr) */
-//#define __UART_IOSTREAM 1
+//#define __UART_IOSTREAM
 
 /* Enable UART input pattern match */
-//#define __UART_MATCH 1
+//#define __UART_MATCH
 
 /* Use strncmp for pattern matching */
-//#define __STRNCMP_MATCH 1
+//#define __STRNCMP_MATCH
 
 /* Emit a trigger signal that can be used by logic analyser to start capture */
-//#define __EMIT_TRIGGER 1
+//#define __EMIT_TRIGGER
 
 /* SIM denotes that source code will compiled for simulation */
-//#define __SIMULATION 1
+//#define __SIMULATION
 
 /* Denotes that source code will be compiled for off-target testing */
-//#define __SIMTEST 1
+//#define __SIMTEST
 
 /* Demo mode with serial communication program */
-//#define __DEMO 1
+//#define __DEMO
 
 /* Enable debug build with debugging information and symbols */
-//#define __DEBUG 1
+//#define __DEBUG
 
 /* Preserve compilation intermediaries */
-//#define __SAVE_TEPMS 1
+//#define __SAVE_TEMPS
 
 /* Set the compiler optimization level (-O0, -O1, -O2, -O3, -Os, etc.) */
 //#define __OPTIM -O2

@@ -131,7 +131,7 @@ SIM=1 make               # Compile for simulation
 SIMTEST=1 make           # Compile for off-target testing
 DEMO=1 make              # Demo mode
 DEBUG=1 make             # Debug build
-SAVE_TEMPS=1 make        # Preserve intermediate files
+SAVETEMPS=1 make        # Preserve intermediate files
 ```
 
 #### 3. Via Code
@@ -329,7 +329,7 @@ make help  # Show available flags
 | `DEVICE` | atmega328p | AVR device |
 | `CLOCK` | 16000000 | CPU clock frequency |
 | `DEBUG` | - | Enable debug build |
-| `SAVE_TEMPS` | - | Preserve intermediate files |
+| `SAVETEMPS` | - | Preserve intermediate files |
 | `OPTIM` | - | Compiler optimization level |
 | `RELEASE` | - | Release build |
 | `INCLUDE_DIRS` | - | Include paths |

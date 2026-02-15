@@ -103,7 +103,7 @@ override CFLAGS += -g -D__DEBUG
 endif
 
 # Preserve compilation intermediaries
-ifneq ($(strip $(SAVE_TEPMS)),)
+ifneq ($(strip $(SAVETEMPS)),)
 override CFLAGS += -save-temps
 else
 
@@ -258,7 +258,7 @@ help:
 	@echo "SIMTEST     			Compile for off-target testing"
 	@echo "DEMO        			Demo mode with serial communication program"
 	@echo "DEBUG       			Enable debug build"
-	@echo "SAVE_TEMPS  			Preserve compilation intermediaries"
+	@echo "SAVETEMPS   			Preserve compilation intermediaries"
 	@echo "OPTIM       			Set compiler optimization level"
 	@echo ""
 	@echo "=== Build Variables ==="
