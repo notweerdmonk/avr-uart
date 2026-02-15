@@ -58,7 +58,7 @@ all: $(TARGET)
 $(TARGET) : $(OBJECTS)
 	$(COMPILE) -o $(TARGET) $(OBJECTS)
 
-test_run: $(TARGET)
+run_test: $(TARGET)
 	$(CURDIR)/$(TARGET)
 
 clean:
