@@ -379,6 +379,12 @@ make -C tests/target flash
 cd tests/target && make flash
 ```
 
+### Tests suite
+
+The test suite consists of a bash script `run_tests` provided in the `tests` directory. It iterates through several values for baud rate, character size, stop bits and parity type; builds the firmware and flashes the target microcontroller, and then runs the host driver for each case.
+
+See [summary](tests/tests_summary.md) of the tests.
+
 ## Simulation
 
 The project supports simulation using [simavr](https://github.com/buserror/simavr).
