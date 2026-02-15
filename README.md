@@ -8,7 +8,7 @@ A lightweight, buffered UART library for AVR microcontrollers.
 - **Interrupt-Driven**: Non-blocking transmission and reception via UART interrupts
 - **Pattern Matching**: Register callback functions to trigger on specific character sequences
 - **STDIO Integration**: Optional stdio-style input/output
-- **Flexible Configuration**: Runtime or compile-time UART configuration
+- **Flexible Configuration**: Statically (compile-time) or dynamically (runtime) configurable UART settings
 - **Portable**: Port abstraction layer for different AVR variants (currently ATmega328P)
 
 ## Quick Start
@@ -31,9 +31,67 @@ int main(void) {
 
 ## Installation
 
-1. Copy the `include/`, `src/`, and `port/` directories to your AVR project
+There are two ways to use the avr-uart library in your project:
+
+### Option 1: Use Precompiled Library
+
+Use the API headers and link to the precompiled static library:
+
+1. Copy `include/`, `port/` directories to your project
+2. Copy `lib/libuart.a` (generated after building) to your project
+3. Add include paths: `-Iinclude -Iport`
+4. Link with: `-L. -luart` or use `-Wl,-rpath,/path/to/lib` to embed library path
+
+```bash
+# Build the library first
+make build-lib
+
+# In your project:
+avr-gcc -mmcu=atmega328p -Iinclude -Iport your_main.c -L. -luart -o your_project.elf
+
+# Or embed runtime library path:
+avr-gcc -mmcu=atmega328p -Iinclude -Iport your_main.c -Wl,-rpath,/path/to/lib -L/path/to/lib -luart -o your_project.elf
+```
+
+This approach is simpler but you cannot customize the library features at compile time.
+
+**Note:** To enable runtime UART configuration in the precompiled library, build with:
+
+```bash
+RUNTIMECONF=1 make build-lib
+```
+
+Then in your code:
+
+```c
+#define __RUNTIME_CONFIG
+#include <uart.h>
+
+struct uart_config cfg = {
+    .baud_rate = 115200,
+    .char_size = 8,
+    .stop_bits = 1,
+    .parity = UART_PARITY_NONE
+};
+uart_setup(&cfg);
+```
+
+### Option 2: Compile from Source
+
+Copy the source files into your project and compile along with your code:
+
+1. Copy `include/`, `src/`, and `port/` directories to your AVR project
 2. Add `src/uart.c` and `src/match.c` (if using pattern matching) to your build
 3. Configure your build system to include the appropriate include paths
+4. Define feature flags (like `__UART_MATCH`, `__UART_STDIO`, etc.) in your build
+
+```bash
+# In your project Makefile:
+CFLAGS += -I$(UART_DIR)/include -I$(UART_DIR)/port -D__UART_MATCH
+SRCS += $(UART_DIR)/src/uart.c $(UART_DIR)/src/match.c
+```
+
+This approach allows you to customize library features at compile time.
 
 ## Configuration
 
