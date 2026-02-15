@@ -40,7 +40,7 @@ Use the API headers and link to the precompiled static library:
 1. Copy `include/`, `port/` directories to your project
 2. Copy `lib/libuart.a` (generated after building) to your project
 3. Add include paths: `-Iinclude -Iport`
-4. Link with: `-L. -luart` or use `-Wl,-rpath,/path/to/lib` to embed library path
+4. Link with: `-L. -luart`
 
 ```bash
 # Build the library first
@@ -48,9 +48,6 @@ make build-lib
 
 # In your project:
 avr-gcc -mmcu=atmega328p -Iinclude -Iport your_main.c -L. -luart -o your_project.elf
-
-# Or embed runtime library path:
-avr-gcc -mmcu=atmega328p -Iinclude -Iport your_main.c -Wl,-rpath,/path/to/lib -L/path/to/lib -luart -o your_project.elf
 ```
 
 This approach is simpler but you cannot customize the library features at compile time.
