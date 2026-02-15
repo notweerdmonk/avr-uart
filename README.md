@@ -339,12 +339,6 @@ make MATCH=1             # At project root
 make -C src MATCH=1      # In src directory
 ```
 
-### Target Commands (in tests/target)
-
-```bash
-make -C tests/target flash   # Flash firmware to AVR
-```
-
 ### Build Targets (in tests/target)
 
 ```bash
@@ -466,7 +460,35 @@ For testing without actual hardware, use SIMTEST to compile for off-target testi
 SIMTEST=1 make -C tests/target
 ```
 
-This allows running the target firmware test program in a simulated environment.
+This allows running the target firmware test program in a simulated environment using simavr's simduino board.
+
+#### Using simduino
+
+The simduino board emulates an Arduino board using simavr. It loads the target firmware and allows the host driver program to communicate with the emulation over a pseudoterminal device.
+
+**Prerequisites:**
+- Build simavr from source
+- Note the path to the compiled simduino ELF file
+
+**Running off-target tests:**
+
+1. Build the target firmware with SIMTEST flag:
+```bash
+SIMTEST=1 make -C tests/target
+```
+
+2. Run simduino with the target firmware:
+```bash
+/path/to/simavr/examples/board_simduino/<simavr_build_target>/simduino.elf -v -v -v tests/target/main.hex
+```
+**Note:** The path to simduino.elf can vary depending on the host platform where simavr was built (uses `obj-$(shell $(CC) -dumpmachine)` format, e.g., `obj-x86_64-linux-gnu` on Debian Linux).
+
+3. In another terminal, run the host driver:
+```bash
+make -C tests/host test_run DEVICE=/dev/pts/X
+```
+
+The simduino board requires the binary ihex file (not ELF). The `-v -v -v` flags enable verbose logging.
 
 ### VCD Trace Generation
 
