@@ -358,9 +358,9 @@ int open_serial_device(const char *device) {
 }
 
 /* TODO: pass uart_config as argument */
-#ifdef UART_RUNTIME_CONFIG
+#ifdef __RUNTIME_CONFIG
 
-#else /* !UART_RUNTIME_CONFIG */
+#else /* !__RUNTIME_CONFIG */
 
 /**
  * @brief Configure serial port settings
@@ -372,24 +372,24 @@ int open_serial_device(const char *device) {
  * @return 0 on success, -1 on failure
  */
 int setup_serial_device(int serdev, void *param) {
-#ifdef UART_RUNTIME_CONFIG
+#ifdef __RUNTIME_CONFIG
 
   if (!config) {
     return -1;
   }
 
-#else /* !UART_RUNTIME_CONFIG */
+#else /* !__RUNTIME_CONFIG */
 
   (void)param;
 
-#endif /* UART_RUNTIME_CONFIG */
+#endif /* __RUNTIME_CONFIG */
 
   int baud_rate;
   char char_size;
   char stop_bits;
   char parity;
 
-#ifdef UART_RUNTIME_CONFIG
+#ifdef __RUNTIME_CONFIG
 
   struct uart_config *cfgptr = param;
   baud_rate = cfgptr->baud_rate;
@@ -397,14 +397,14 @@ int setup_serial_device(int serdev, void *param) {
   stop_bits = cfgptr->stop_bits;
   parity = cfgptr->parity;
 
-#else /* !UART_RUNTIME_CONFIG */
+#else /* !__RUNTIME_CONFIG */
 
   baud_rate = UART_BAUD_DEFAULT;
   char_size = UART_CHAR_SIZE;
   stop_bits = UART_STOP_BITS;
   parity = UART_PARITY;
 
-#endif /* UART_RUNTIME_CONFIG */
+#endif /* __RUNTIME_CONFIG */
 
   struct termios settings;
   tcgetattr(serdev, &settings);
@@ -469,7 +469,7 @@ int setup_serial_device(int serdev, void *param) {
   return 0;;
 }
 
-#endif /* UART_RUNTIME_CONFIG */
+#endif /* __RUNTIME_CONFIG */
 
 /**
  * @brief Send data over serial port
@@ -834,7 +834,7 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-#ifdef UART_RUNTIME_CONFIG
+#ifdef __RUNTIME_CONFIG
 
   setup_serial_device(
       serdev,
@@ -846,11 +846,11 @@ int main(int argc, char *argv[]) {
       }
     );
 
-#else /* !UART_RUNTIME_CONFIG */
+#else /* !__RUNTIME_CONFIG */
 
   setup_serial_device(serdev, NULL);
 
-#endif /* UART_RUNTIME_CONFIG */
+#endif /* __RUNTIME_CONFIG */
 
 
 #ifndef __SIMTEST

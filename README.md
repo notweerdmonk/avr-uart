@@ -56,10 +56,10 @@ Define these macros in `uart_config.h` or before including `uart.h`:
 
 ### Runtime Configuration
 
-Define `UART_RUNTIME_CONFIG` before including `uart.h`:
+Define `__RUNTIME_CONFIG` before including `uart.h`:
 
 ```c
-#define UART_RUNTIME_CONFIG
+#define __RUNTIME_CONFIG
 #include <uart.h>
 
 int main(void) {
@@ -86,6 +86,9 @@ Uncomment the desired definitions in `config/config.h`:
 ```c
 /* Enable use of UART in I/O streams (stdin/stdout/stderr) */
 //#define __UART_IOSTREAM 1
+
+/* Enable runtime UART configuration (call uart_setup with config struct) */
+//#define __RUNTIME_CONFIG 1
 
 /* Enable UART input pattern match */
 //#define __UART_MATCH 1
@@ -121,6 +124,7 @@ Pass flags to make:
 
 ```bash
 IOSTREAM=1 make          # Enable STDIO
+RUNTIMECONF=1 make        # Enable runtime configuration
 MATCH=1 make             # Enable pattern matching
 TRIGGER=1 make           # Enable trigger signal
 SIM=1 make               # Compile for simulation
@@ -310,6 +314,7 @@ make help  # Show available flags
 | Variable | Description |
 |----------|-------------|
 | `IOSTREAM` | Enable UART like stdin/stdout/stderr |
+| `RUNTIMECONF` | Enable runtime UART configuration |
 | `MATCH` | Enable UART input pattern match |
 | `STRNCMP` | Use strncmp for pattern matching |
 | `TRIGGER` | Emit trigger signal for logic analyzer |

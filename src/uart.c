@@ -161,7 +161,7 @@ FILE __uart_iostream = FDEV_SETUP_STREAM(uart_stream_putchar,
 
 #endif /* __UART_STDIO */
 
-#ifdef UART_RUNTIME_CONFIG
+#ifdef __RUNTIME_CONFIG
 
 void uart_setup(struct uart_config *config) {
   if (!config) {
@@ -186,7 +186,7 @@ void uart_setup() {
   port_uart_set_stop_bits(UART_STOP_BITS);
   port_uart_set_parity(UART_PARITY);
 
-#endif /* UART_RUNTIME_CONFIG */
+#endif /* __RUNTIME_CONFIG */
 
   port_uart_setup();
 

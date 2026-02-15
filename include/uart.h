@@ -92,7 +92,7 @@
  */
 #define c_NEWLINE_STRING "\x0d\x0a"
 
-#ifdef UART_RUNTIME_CONFIG
+#ifdef __RUNTIME_CONFIG
 
 /**
  * @brief Initialize UART with runtime configuration
@@ -104,7 +104,7 @@
  *               character size, stop bits, and parity settings
  *
  * @note If config is NULL or baud_rate is 0, defaults will be used
- * @note This function is only available when UART_RUNTIME_CONFIG is defined
+ * @note This function is only available when __RUNTIME_CONFIG is defined
  *
  * @example
  * @code
@@ -119,13 +119,13 @@
  */
 void uart_setup(struct uart_config *config);
 
-#else /* !UART_RUNTIME_CONFIG */
+#else /* !__RUNTIME_CONFIG */
 
 /**
  * @brief Initialize UART with compile-time configuration
  *
  * Configures the UART hardware using the settings defined in uart_config.h
- * at compile time. This is the default mode when UART_RUNTIME_CONFIG is
+ * at compile time. This is the default mode when __RUNTIME_CONFIG is
  * not defined.
  *
  * @note Configuration is determined by UART_BAUD_RATE, UART_CHAR_SIZE,
@@ -144,7 +144,7 @@ void uart_setup(struct uart_config *config);
  */
 void uart_setup();
 
-#endif /* UART_RUNTIME_CONFIG */
+#endif /* __RUNTIME_CONFIG */
 
 /**
  * @brief Flush the receive buffer

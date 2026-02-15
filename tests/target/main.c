@@ -110,7 +110,7 @@ const char erstr[] = "recv ER";
 int main() {
   const char *teststring = pattern4;
 
-#ifdef UART_RUNTIME_CONFIG
+#ifdef __RUNTIME_CONFIG
 
   uart_setup(
       &(struct uart_config){
@@ -121,11 +121,11 @@ int main() {
       }
     );
 
-#else /* !UART_RUNTIME_CONFIG */
+#else /* !__RUNTIME_CONFIG */
 
   uart_setup();
 
-#endif /* UART_RUNTIME_CONFIG */
+#endif /* __RUNTIME_CONFIG */
   
   sei();
 

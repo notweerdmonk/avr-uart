@@ -48,12 +48,12 @@
 
 #include <port.h>
 
-#ifdef UART_RUNTIME_CONFIG
+#ifdef __RUNTIME_CONFIG
 
 /**
  * @brief UART configuration structure for runtime setup
  *
- * This structure is used with uart_setup() when UART_RUNTIME_CONFIG
+ * This structure is used with uart_setup() when __RUNTIME_CONFIG
  * is defined. It allows configuring UART parameters at runtime rather
  * than compile time.
  *
@@ -66,7 +66,7 @@ typedef struct uart_config {
   uint8_t parity : 2;    /**< Parity mode (none/even/odd) */
 } uart_config_t;
 
-#endif /* UART_RUNTIME_CONFIG */
+#endif /* __RUNTIME_CONFIG */
 
 /*
  * NOTE:

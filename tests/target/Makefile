@@ -25,8 +25,6 @@
 
 PROJECT_ROOT := $(realpath ../../)
 
-include $(PROJECT_ROOT)/Makefile.common
-
 ifeq ($(INCLUDE_DIRS),)
 INCLUDE_DIRS := $(PROJECT_ROOT)/config $(PROJECT_ROOT)/include $(PROJECT_ROOT)/port
 INCLUDE_DIRS := $(foreach i, $(INCLUDE_DIRS), $(realpath $(i)))
@@ -40,6 +38,8 @@ INCLUDE_HEADERS = $(foreach dir, $(abspath $(INCLUDE_DIRS)), $(wildcard $(dir)/*
 TARGET_NAME = main
 TARGET = $(TARGET_NAME).elf
 TARGET_HEX = $(TARGET_NAME).hex
+
+include $(PROJECT_ROOT)/Makefile.common
 
 SOURCES = $(wildcard *.c)
 OBJECTS = $(SOURCES:.c=.o)
@@ -70,7 +70,7 @@ $(TARGET_HEX): $(TARGET)
 	$(AVR_OBJCOPY) -j .text -j .data -O ihex $^ $@
 
 flash: all
-	$(AVRDUDE) -U flash:w:main.hex:i
+	$(AVRDUDE) -U flash:w:$(TARGET_HEX):i
 
 install: flash
 
