@@ -492,7 +492,7 @@ The simduino board requires the binary ihex file (not ELF). The `-v -v -v` flags
 
 ### VCD Trace Generation
 
-When compiled with `SIM=1`, the target firmware generates VCD (Value Change Dump) files that can be viewed in GTKWave. The traces include:
+When compiled with `SIM=1`, the target firmware generates VCD (Value Change Dump) files that can be viewed in GTKWave. The firmware sends a string of lowercase and uppercase English alphabets. The traces include:
 - TxD (transmit signal)
 - RxD (receive signal)
 - Trigger signal (if enabled)
@@ -515,26 +515,26 @@ The waveform shows UART communication at 9600 baud with 8N1 format (8 data bits,
 ```
 avr-uart/
 ├── include/              # Public header files
-│   ├── uart.h           # Main UART API
-│   ├── uart_config.h    # Configuration definitions
-│   └── match.h          # Pattern matching API
-├── src/                 # Implementation
+│   ├── uart.h            # Main UART API
+│   ├── uart_config.h     # Configuration definitions
+│   └── match.h           # Pattern matching API
+├── src/                  # Implementation
 │   ├── uart.c
 │   └── match.c
-├── port/                # Hardware abstraction
-│   ├── port.h           # Port interface
-│   └── mega328p/        # ATmega328P specific code
-├── tests/               # Test applications
-│   ├── host/            # Host driver program
-│   │   ├── uart_test.c # Host test driver
-│   │   ├── logger.h    # Logging utilities
+├── port/                 # Hardware abstraction
+│   ├── port.h            # Port interface
+│   └── mega328p/         # ATmega328P specific code
+├── tests/                # Test applications
+│   ├── host/             # Host driver program
+│   │   ├── uart_test.c   # Host test driver
+│   │   ├── logger.h      # Logging utilities
 │   │   └── Makefile
-│   └── target/         # Target firmware
-│       ├── main.c       # Target test program
+│   └── target/           # Target firmware
+│       ├── main.c        # Target test program
 │       └── Makefile
-├── config/              # Build configuration
-├── docs/                # Generated documentation
-└── Makefile.common      # Common build definitions
+├── config/               # Build configuration
+├── docs/                 # Generated documentation
+└── Makefile.common       # Common build definitions
 ```
 
 ## License
