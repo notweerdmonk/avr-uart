@@ -21,7 +21,22 @@
  * SOFTWARE.
 */
 
-#include <config.h>
+/**
+ * @file main.c
+ * @author notweerdmonk
+ * @brief Target test program for UART module
+ *
+ * This firmware runs on the AVR microcontroller and responds to
+ * test commands from the host test driver.
+ *
+ * Features:
+ * - Echo test string back to host
+ * - Receive and compare test strings
+ * - Pattern matching callback tests
+ * - VCD trace generation for simulation
+ *
+ * @note Compile with MATCH=1 to enable pattern matching tests
+ */
 #include <uart.h>
 #include <string.h>
 #include <util/delay.h>
@@ -42,37 +57,23 @@
 #define TRIGGER_PORT PORTB
 #define TRIGGER_PIN  PB4
 
-#if defined __SIMULATION || defined __SIMTEST
-
-#include <avr/sleep.h>
-
-#define _STRINGIFY(s, ...) #s
-#define STRINGIFY(...) _STRINGIFY(__VA_ARGS__)
-#define MCU_NAME(m) STRINGIFY(m)
-#define VCD_FILE(m) \
-  STRINGIFY(PROJECT_ROOT)STRINGIFY(/simulation/)\
-  STRINGIFY(m)STRINGIFY(_uart_trace.vcd)
-
-//#include </usr/include/simavr/avr/avr_mcu_section.h>
-#include <avr_mcu_section.h>
-AVR_MCU(F_CPU, MCU_NAME(DEVICE_NAME));
-AVR_MCU_VCD_FILE(VCD_FILE(DEVICE_NAME), 1000);
-
-const struct avr_mmcu_vcd_trace_t _trace[] _MMCU_ = {
-  { AVR_MCU_VCD_SYMBOL("TxD"), .mask = (1 << TX_PIN), .what = (void*)&TX_PORT, },
-  { AVR_MCU_VCD_SYMBOL("RxD"), .mask = (1 << RX_PIN), .what = (void*)&RX_PORT, },
-  { AVR_MCU_VCD_SYMBOL("Trigger"), .mask = (1 << TRIGGER_PIN), .what = (void*)&TRIGGER_PORT, },
-  { AVR_MCU_VCD_SYMBOL("UDR0"), .what = (void*)&UDR0, },
-};
-
-#endif
-
+/**
+ * @brief Pattern match callback data structure
+ */
 #ifdef __UART_MATCH
 struct match_cb_data {
   const char *str;
   int len;
 };
 
+/**
+ * @brief Pattern match callback handler
+ *
+ * Called by UART module when a registered pattern is matched.
+ * Sends the response string back to the host.
+ *
+ * @param data Pointer to match_cb_data structure
+ */
 void uart_match_cb(void *data) {
   uart_send(
       ((struct match_cb_data*)data)->str,
@@ -95,6 +96,17 @@ const char pattern6[] = "\xc\xa\xf\xe\xb\xa\xb\xe";
 const char okstr[] = "recv OK";
 const char erstr[] = "recv ER";
 
+/**
+ * @brief Main test program entry point
+ *
+ * Initializes UART and runs test sequences:
+ * - Sends test string to host
+ * - Receives and verifies test string
+ * - Tests partial reception
+ * - Runs pattern matching tests (if enabled)
+ *
+ * @return 0 (never returns - infinite loop at end)
+ */
 int main() {
   const char *teststring = pattern4;
 

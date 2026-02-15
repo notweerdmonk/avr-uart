@@ -22,8 +22,26 @@
 */
 
 /**
- * This program will recieve and send data to and from /dev/ttyUSB0 or specified
- * serial device.
+ * @file uart_test.c
+ * @author notweerdmonk
+ * @brief Host test driver for UART module
+ *
+ * This program communicates with an AVR microcontroller over a serial port
+ * to run automated tests on the UART implementation.
+ *
+ * Features:
+ * - Send and receive data over serial port
+ * - Automated test execution with pass/fail reporting
+ * - Support for pattern matching tests
+ * - Configurable serial device
+ *
+ * @note Requires a connected AVR device running the target test firmware
+ *
+ * @code
+ * # Build and run
+ * make -C tests/host
+ * ./uart_test -d /dev/ttyUSB0
+ * @endcode
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -116,6 +134,14 @@ static const char teststring[] = {
   'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
   'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 0x8a }; 
 
+/**
+ * @brief Logger write function
+ *
+ * Writes log messages to stdout or stderr based on log level.
+ *
+ * @param msg  Log message string
+ * @param lvl  Log level (enum logger_level)
+ */
 static
 void log_writer(const char *msg, enum logger_level lvl) {
   if (!msg) {
@@ -134,10 +160,26 @@ void log_writer(const char *msg, enum logger_level lvl) {
 
 static int __stop = 0;
 
+/**
+ * @brief Signal alarm handler
+ *
+ * Signal handler for SIGALRM used to implement timeouts
+ * during serial operations.
+ *
+ * @param sig Signal number (unused)
+ */
 void sigalarm_handler(int sig __attribute__ ((unused))) {
   __stop = 1;
 }
 
+/**
+ * @brief Setup alarm signal handler
+ *
+ * Configures the SIGALRM signal handler for timeout functionality.
+ *
+ * @param p_old_sa Pointer to store old signal action
+ * @return 0 on success, -1 on failure
+ */
 int setup_alarm(struct sigaction* p_old_sa) {
   if (!p_old_sa) {
     return -1;
@@ -160,6 +202,14 @@ int setup_alarm(struct sigaction* p_old_sa) {
   return 0;
 }
 
+/**
+ * @brief Cleanup alarm signal handler
+ *
+ * Restores the previous SIGALRM signal handler.
+ *
+ * @param p_old_sa Pointer to old signal action to restore
+ * @return 0 on success, -1 on failure
+ */
 int cleanup_alarm(struct sigaction* p_old_sa) {
   if (!p_old_sa) {
     return -1;
@@ -177,6 +227,15 @@ int cleanup_alarm(struct sigaction* p_old_sa) {
   return 0;
 }
 
+/**
+ * @brief Convert string to hex representation
+ *
+ * Converts a string to its hexadecimal representation
+ * for logging purposes.
+ *
+ * @param str Input string
+ * @return Newly allocated hex string (caller must free), or NULL on error
+ */
 /* Returns malloced string */
 char* strtohex(const char *str) {
   if (!str) {
@@ -194,6 +253,14 @@ char* strtohex(const char *str) {
   return hexstr;
 }
 
+/**
+ * @brief Convert parity type to string
+ *
+ * Converts UART parity constant to human-readable string.
+ *
+ * @param parity Parity constant (UART_PARITY_NONE, etc.)
+ * @return Static string describing parity mode
+ */
 char* parity_type_to_str(int parity) {
 
   if (parity == UART_PARITY_NONE) {
@@ -215,6 +282,18 @@ char* parity_type_to_str(int parity) {
   return "None";
 }
 
+/**
+ * @brief Parse command line arguments
+ *
+ * Parses command line options for the test program.
+ *
+ * @param argc Argument count
+ * @param argv Argument vector
+ * @param k    Pointer to store keep-going flag
+ * @param buffer Buffer to store device path
+ * @param len   Buffer length
+ * @return 0 on success, -1 on error (including -h flag)
+ */
 int parse_cmd_args(int argc, char *argv[], int *k, char *buffer, size_t len) {
 
   int c;
@@ -253,6 +332,14 @@ int parse_cmd_args(int argc, char *argv[], int *k, char *buffer, size_t len) {
   return 0;
 }
 
+/**
+ * @brief Open serial device
+ *
+ * Opens a serial port device for communication.
+ *
+ * @param device Path to serial device (e.g., /dev/ttyUSB0)
+ * @return File descriptor on success, -1 on failure
+ */
 int open_serial_device(const char *device) {
   if (!device || !*device) {
     return -1;
@@ -275,6 +362,15 @@ int open_serial_device(const char *device) {
 
 #else /* !UART_RUNTIME_CONFIG */
 
+/**
+ * @brief Configure serial port settings
+ *
+ * Sets up the serial port with matching parameters for the AVR UART.
+ *
+ * @param serdev File descriptor of open serial port
+ * @param param  Configuration parameter (unused in compile-time mode)
+ * @return 0 on success, -1 on failure
+ */
 int setup_serial_device(int serdev, void *param) {
 #ifdef UART_RUNTIME_CONFIG
 
@@ -375,6 +471,17 @@ int setup_serial_device(int serdev, void *param) {
 
 #endif /* UART_RUNTIME_CONFIG */
 
+/**
+ * @brief Send data over serial port
+ *
+ * Sends data with timeout support using select() for non-blocking I/O.
+ *
+ * @param serdev  File descriptor of serial port
+ * @param data    Data buffer to send
+ * @param len     Number of bytes to send
+ * @param timeout Timeout in seconds
+ * @return Number of bytes sent, or -1 on error
+ */
 size_t serial_send(int serdev, const char *data, size_t len,
     unsigned int timeout) {
 
@@ -428,6 +535,17 @@ size_t serial_send(int serdev, const char *data, size_t len,
   return next_byte;
 }
 
+/**
+ * @brief Receive data over serial port
+ *
+ * Receives data with timeout support using select() for non-blocking I/O.
+ *
+ * @param serdev  File descriptor of serial port
+ * @param buffer  Buffer to store received data
+ * @param len     Maximum bytes to receive
+ * @param timeout Timeout in seconds
+ * @return Number of bytes received, or -1 on error
+ */
 size_t serial_recv(int serdev, char *buffer, size_t len,
     unsigned int timeout) {
 
@@ -480,6 +598,17 @@ size_t serial_recv(int serdev, char *buffer, size_t len,
   return next_byte;
 }
 
+/**
+ * @brief Run a test and report results
+ *
+ * Macro that executes a test function and logs pass/fail status.
+ *
+ * @param name   Test name string
+ * @param result Variable to store test result
+ * @param func   Test function to call
+ * @param nargs  Number of arguments to pass
+ * @param ...    Arguments to pass to test function
+ */
 #define RUN_TEST(name, result, func, nargs, ...) \
   do {                                                  \
     LOG(&log, LOGGER_INFO, "Running test: %s", (name)); \
@@ -492,6 +621,15 @@ size_t serial_recv(int serdev, char *buffer, size_t len,
     }                                                   \
   } while (0)
 
+/**
+ * @brief Unpack variadic arguments for test functions
+ *
+ * Extracts serdev and buffer from variadic arguments.
+ * Asserts that exactly 2 arguments are provided.
+ *
+ * @param list Variable to store va_list
+ * @param arg  Expected argument count (should be 2)
+ */
 #define UNPACK_ARGS(list, arg) \
   assert(arg == 2);                     \
   va_list (list);                       \
@@ -500,6 +638,17 @@ size_t serial_recv(int serdev, char *buffer, size_t len,
   char *buffer = va_arg((list), char*); \
   va_end((list));
 
+
+/**
+ * @brief Test UART send functionality
+ *
+ * Tests that the AVR can send data correctly over UART.
+ * GIVEN AVR microcontroller WHEN uC sends a string over UART
+ * THEN received string should match with stored string
+ *
+ * @param nargs Number of arguments
+ * @return 0 on success (test passed), -1 on failure
+ */
 int send_test(int nargs, ...) {
 
   /*
@@ -521,6 +670,17 @@ int send_test(int nargs, ...) {
   return 0;
 }
 
+/**
+ * @brief Test UART receive functionality
+ *
+ * Tests that the AVR can receive data correctly over UART.
+ * GIVEN AVR microcontroller WHEN uC waits to receive a string over UART,
+ * compares it with stored string and sends "recv OK" on match
+ * THEN "recv OK" should be received
+ *
+ * @param nargs Number of arguments
+ * @return 0 on success (test passed), -1 on failure
+ */
 int recv_test(int nargs, ...) {
 
   /*
@@ -543,6 +703,17 @@ int recv_test(int nargs, ...) {
   return 0;
 }
 
+/**
+ * @brief Test partial UART buffer read functionality
+ *
+ * Tests that the UART library correctly handles reading the receive
+ * buffer partially (i.e., reading fewer bytes than available).
+ * GIVEN AVR microcontroller WHEN host sends a string and uC reads only
+ * half the bytes THEN remaining bytes should still be in buffer
+ *
+ * @param nargs Number of arguments
+ * @return 0 on success (test passed), -1 on failure
+ */
 int partial_recv_test(int nargs, ...) {
 
   /*
@@ -565,6 +736,9 @@ int partial_recv_test(int nargs, ...) {
   return 0;
 }
 
+/**
+ * @brief Pattern match data structure
+ */
 #ifdef __UART_MATCH
 struct _match_data {
   const char *pattern;
@@ -583,6 +757,15 @@ struct _match_data match_data[] = {
     { "1234", "Match 4" },
   };
 
+/**
+ * @brief Test pattern matching functionality
+ *
+ * Tests that the AVR correctly triggers callbacks when
+ * registered patterns are matched in incoming data.
+ *
+ * @param nargs Number of arguments (should be 4)
+ * @return 0 on success (test passed), -1 on failure
+ */
 int match_test(int nargs, ...) {
 
   assert(nargs == 4);
@@ -617,6 +800,19 @@ int match_test(int nargs, ...) {
 }
 #endif
 
+/**
+ * @brief Main test driver entry point
+ *
+ * Main function that orchestrates all UART tests:
+ * - send_test: Verifies AVR can transmit
+ * - recv_test: Verifies AVR can receive and echo
+ * - partial_recv_test: Verifies partial data handling
+ * - match_test: Verifies pattern matching (if enabled)
+ *
+ * @param argc Argument count
+ * @param argv Argument vector
+ * @return 0 on success, non-zero on failure
+ */
 int main(int argc, char *argv[]) {
 
   int serdev;

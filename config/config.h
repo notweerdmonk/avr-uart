@@ -56,7 +56,7 @@
 /* Preserve compilation intermediaries */
 //#define __SAVE_TEPMS 1
 
-/* Set the compiler optimization level */
-//#define __OPTIM 1
+/* Set the compiler optimization level (-O0, -O1, -O2, -O3, -Os, etc.) */
+//#define __OPTIM -O2
 
 #endif /* _AVR_UART_CONFIG_H_ */

@@ -21,11 +21,29 @@
  * SOFTWARE.
 */
 
+#ifdef __UART_MATCH
+
+/**
+ * @file match.c
+ * @author notweerdmonk
+ * @brief Pattern matching implementation for UART
+ *
+ * This file implements the pattern matching functionality that detects
+ * specific character sequences in incoming UART data and triggers
+ * callback handlers.
+ *
+ * @note This file is only compiled when __UART_MATCH is defined
+ */
+
 #include <stdint.h>
 #include <uart.h>
 
-#ifdef __UART_MATCH
-
+/**
+ * @internal
+ * @brief Pattern match state structure
+ *
+ * Maintains state for all registered patterns and their match progress.
+ */
 static
 struct _uart_match {
   uint8_t match_idx_max;
@@ -137,6 +155,20 @@ void uart_check_match() {
   }
 }
 
+/**
+ * @internal
+ * @brief Process incoming byte for pattern matching
+ *
+ * Called from UART RX ISR to check incoming bytes against registered
+ * patterns. Updates match progress and sets triggered flags when
+ * patterns complete.
+ *
+ * @param udr The received byte to check
+ *
+ * @note Runs in ISR context - keeps processing fast and simple
+ * @note Uses partial matching - resets on mismatch but restarts if
+ *       next byte matches pattern start
+ */
 void uart_do_match(uint8_t udr) {
 
   if (match.match_idx_max == 0) {

@@ -24,8 +24,13 @@
 /**
  * @file uart.c
  * @author notweerdmonk
- * @brief Implements the UART module
+ * @brief UART module implementation
+ *
+ * This file implements the buffered UART functionality for AVR microcontrollers.
+ * Uses circular FIFO buffers for both transmit and receive, with interrupt-driven
+ * data movement.
  */
+
 #include <uart.h>
 #include <port.h>
 #include <string.h>
@@ -38,6 +43,12 @@
 /* Variables */
 /*****************************************************************************/
 
+/**
+ * @brief UART internal state structure
+ *
+ * Contains all runtime state for the UART module including
+ * circular buffer management and data storage.
+ */
 static
 struct _uart {
 
@@ -81,6 +92,16 @@ struct _uart {
 /*****************************************************************************/
 /* Extern linkages */
 /*****************************************************************************/
+
+/**
+ * @internal
+ * @brief External pattern matching handler
+ *
+ * Called from RX ISR when __UART_MATCH is enabled to check
+ * incoming bytes against registered patterns.
+ *
+ * @param udr The received byte from UART data register
+ */
 extern void uart_do_match(uint8_t udr);
 
 /*****************************************************************************/
@@ -89,6 +110,17 @@ extern void uart_do_match(uint8_t udr);
 
 #ifdef __UART_STDIO
 
+/**
+ * @internal
+ * @brief STDIO stream putchar implementation
+ *
+ * Callback function for STDIO stream to send characters via UART.
+ * Automatically converts newline to carriage return + newline.
+ *
+ * @param c     Character to send
+ * @param stream FILE stream (unused)
+ * @return 0 on success, EOF on error
+ */
 int uart_stream_putchar(char c, FILE *stream) {
   if (c == '\n') {
     uart_stream_putchar('\r', stream);
@@ -97,6 +129,17 @@ int uart_stream_putchar(char c, FILE *stream) {
   return 0;
 }
 
+/**
+ * @internal
+ * @brief STDIO stream getchar implementation
+ *
+ * Callback function for STDIO stream to receive characters from UART.
+ *
+ * @param stream FILE stream (unused)
+ * @return Received character or EOF if error
+ *
+ * @note Returns EOF for null character (0x00)
+ */
 int uart_stream_getchar(FILE *stream) {
   /* 
    * A null character can be received but shall get interpreted as string
@@ -106,6 +149,12 @@ int uart_stream_getchar(FILE *stream) {
   return (c = uart_recv_byte()) == '\0' ? EOF : c;
 }
 
+/**
+ * @internal
+ * @brief STDIO stream object
+ *
+ * Combined input/output stream configured for UART communication.
+ */
 static
 FILE __uart_iostream = FDEV_SETUP_STREAM(uart_stream_putchar,
     uart_stream_getchar, _FDEV_SETUP_RW);
@@ -148,6 +197,16 @@ void uart_setup() {
   uart_flush();
 }
 
+/**
+ * @internal
+ * @brief UART Data Register Empty ISR
+ *
+ * Interrupt service routine triggered when the UART transmit data
+ * register is empty and ready for new data. Transfers bytes from
+ * the TX circular buffer to the UART hardware.
+ *
+ * @note Runs in ISR context with other interrupts blocked
+ */
 ISR(port_udre_vect, ISR_BLOCK) {
 
   if (uart.tx_count > 0) {
@@ -163,6 +222,16 @@ ISR(port_udre_vect, ISR_BLOCK) {
   }
 }
 
+/**
+ * @internal
+ * @brief UART Receive Complete ISR
+ *
+ * Interrupt service routine triggered when a byte is received
+ * via UART. Stores the byte in the RX circular buffer and
+ * optionally checks for pattern matches.
+ *
+ * @note Runs in ISR context with other interrupts blocked
+ */
 ISR(port_rxc_vect, ISR_BLOCK) {
 
 #ifdef __UART_MATCH
