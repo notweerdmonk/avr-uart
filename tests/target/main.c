@@ -37,6 +37,8 @@
  *
  * @note Compile with MATCH=1 to enable pattern matching tests
  */
+
+#include <config.h>
 #include <uart.h>
 #include <string.h>
 #include <util/delay.h>
@@ -56,6 +58,31 @@
 #define TRIGGER_DDR  DDRB
 #define TRIGGER_PORT PORTB
 #define TRIGGER_PIN  PB4
+
+#if defined __SIMULATION || defined __SIMTEST
+
+#include <avr/sleep.h>
+
+#define _STRINGIFY(s, ...) #s
+#define STRINGIFY(...) _STRINGIFY(__VA_ARGS__)
+#define MCU_NAME(m) STRINGIFY(m)
+#define VCD_FILE(m) \
+  STRINGIFY(PROJECT_ROOT)STRINGIFY(/simulation/)\
+  STRINGIFY(m)STRINGIFY(_uart_trace.vcd)
+
+//#include </usr/include/simavr/avr/avr_mcu_section.h>
+#include <avr_mcu_section.h>
+AVR_MCU(F_CPU, MCU_NAME(DEVICE_NAME));
+AVR_MCU_VCD_FILE(VCD_FILE(DEVICE_NAME), 1000);
+
+const struct avr_mmcu_vcd_trace_t _trace[] _MMCU_ = {
+  { AVR_MCU_VCD_SYMBOL("TxD"), .mask = (1 << TX_PIN), .what = (void*)&TX_PORT, },
+  { AVR_MCU_VCD_SYMBOL("RxD"), .mask = (1 << RX_PIN), .what = (void*)&RX_PORT, },
+  { AVR_MCU_VCD_SYMBOL("Trigger"), .mask = (1 << TRIGGER_PIN), .what = (void*)&TRIGGER_PORT, },
+  { AVR_MCU_VCD_SYMBOL("UDR0"), .what = (void*)&UDR0, },
+};
+
+#endif
 
 /**
  * @brief Pattern match callback data structure
