@@ -1,8 +1,11 @@
 tags
+lib/
+docs/
 *.i
 *.d
 *.s
 *.o
+*.a
 *.lst
 *.bin
 *.elf
