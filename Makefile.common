@@ -200,11 +200,6 @@ disasmall: $(OBJECTS) $(TARGET)
 	#$(AVR_OBJDUMP) -S -D main.elf > main.lst
 	for obj in $^; do avr-objdump -D $${obj} > $${obj%%.o}.lst; done
 
-# distribution
-dist:
-	@make -s clean
-	tar --exclude=.gdb* --exclude=peda-session-*.txt --exclude=.*.swp --exclude-backups --exclude-vcs --exclude-vcs-ignore -czvf $(shell basename $(shell pwd)).tar.gz ./*
-
 # simluation
 sim-gdb:
 ifneq ($(strip $(SIMAVR)),)

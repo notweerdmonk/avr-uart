@@ -50,8 +50,12 @@ build-lib: | $(LIB_DIR)
 build-tests:
 	$(MAKE) -C $(TESTS_DIR)
 
-size:
-	$(AVR_SIZE) -C --mcu=$(DEVICE) main.elf
+# Make distribution
+dist:
+	@make -s clean
+	tar --exclude=.gdb* --exclude=peda-session-*.txt --exclude=.*.swp \
+		--exclude=tags --exclude-backups --exclude-vcs --exclude-vcs-ignore -czvf \
+		$(shell basename $(shell pwd)).tar.gz ./*
 
 help:
 	$(MAKE) -C $(LIB_SRC_DIR) help
