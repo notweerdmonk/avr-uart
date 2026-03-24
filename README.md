@@ -11,6 +11,13 @@ A lightweight, buffered UART library for AVR microcontrollers.
 - **Flexible Configuration**: Statically (compile-time) or dynamically (runtime) configurable UART settings
 - **Portable**: Port abstraction layer for different AVR variants (currently ATmega328P)
 
+## Requirements
+
+- avr-gcc toolchain
+- avr-libc
+- simavr (for simulation testing)
+- avrdude (for flashing to hardware)
+
 ## Quick Start
 
 ```c
@@ -270,7 +277,7 @@ int main(void) {
 #define c_BKSPACE             // Backspace (0x08)
 #define c_ESCAPE              // Escape (0x1B)
 #define c_CLEARSCREEN_STRING  // ANSI clear screen
-#define c_NEWLINE_STRING      // CRLF string
+#define c_CRLF                // CRLF string
 ```
 
 ## STDIO Integration
@@ -420,6 +427,7 @@ make -C tests/target
 
 # Or from subdirectory
 cd tests/target && make
+:qa
 
 # Flash to AVR
 make -C tests/target flash
@@ -540,6 +548,14 @@ avr-uart/
 ## License
 
 MIT License - see LICENSE file for details.
+
+## Contributing
+
+Contributions are welcome. Please ensure code follows the existing style:
+- 2-space indentation
+- snake_case for functions and variables
+- UPPERCASE for macros
+- Feature flags prefixed with `AVR_`
 
 ---
 
