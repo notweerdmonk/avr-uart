@@ -1,5 +1,5 @@
 #
-# avr-uart - UART module for AVRmicrocontrollers
+# avr-uart - UART module for AVR microcontrollers
 # Copyright (C) 2026 notweerdmonk
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
