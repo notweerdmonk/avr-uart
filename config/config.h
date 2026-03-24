@@ -24,6 +24,16 @@
 #ifndef _AVR_UART_CONFIG_H_
 #define _AVR_UART_CONFIG_H_
 
+/* Versioning */
+#define MAJOR_VERSION 1
+#define MINOR_VERSION 0
+#define REVISION      0
+
+/* F_CPU */
+/* !!! IMPORTANT !!! always define F_CPU before including any AVR headers */
+#ifndef F_CPU
+#error *** F_CPU not defined! ***
+#endif
 /*
  * Define macros in this file to configure features and compilation behaviour.
  * Uncomment the line(s) which contain definition of desired macro(s).
