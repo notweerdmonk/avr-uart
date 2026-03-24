@@ -447,7 +447,7 @@ void uart_send_double(double d, uint8_t m) {
 }
 
 void uart_newline() {
-  uart_send(c_NEWLINE_STRING, 2);
+  uart_send(c_CRLF, 2);
 }
 
 void uart_clear() {
