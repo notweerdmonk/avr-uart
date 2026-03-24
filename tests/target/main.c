@@ -75,10 +75,25 @@ AVR_MCU(F_CPU, MCU_NAME(DEVICE_NAME));
 AVR_MCU_VCD_FILE(VCD_FILE(DEVICE_NAME), 1000);
 
 const struct avr_mmcu_vcd_trace_t _trace[] _MMCU_ = {
-  { AVR_MCU_VCD_SYMBOL("TxD"), .mask = (1 << TX_PIN), .what = (void*)&TX_PORT, },
-  { AVR_MCU_VCD_SYMBOL("RxD"), .mask = (1 << RX_PIN), .what = (void*)&RX_PORT, },
-  { AVR_MCU_VCD_SYMBOL("Trigger"), .mask = (1 << TRIGGER_PIN), .what = (void*)&TRIGGER_PORT, },
-  { AVR_MCU_VCD_SYMBOL("UDR0"), .what = (void*)&UDR0, },
+  {
+    AVR_MCU_VCD_SYMBOL("TxD"),
+    .mask = (1 << TX_PIN),
+    .what = (void*)&TX_PORT,
+  },
+  {
+    AVR_MCU_VCD_SYMBOL("RxD"),
+    .mask = (1 << RX_PIN),
+    .what = (void*)&RX_PORT,
+  },
+  {
+    AVR_MCU_VCD_SYMBOL("Trigger"),
+    .mask = (1 << TRIGGER_PIN),
+    .what = (void*)&TRIGGER_PORT,
+  },
+  {
+    AVR_MCU_VCD_SYMBOL("UDR0"),
+    .what = (void*)&UDR0,
+  },
 };
 
 #endif /* AVR_UART_SIMULATION || defined AVR_UART_SIMTEST */
