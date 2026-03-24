@@ -1,11 +1,14 @@
 tags
 lib/
 docs/
+gdb_history
 *.i
 *.d
 *.s
 *.o
 *.a
+*.map
+*.gdb
 *.lst
 *.bin
 *.elf
