@@ -41,9 +41,9 @@ INCLUDE_HEADERS = $(foreach dir, $(abspath $(INCLUDE_DIRS)), $(wildcard $(dir)/*
 SOURCES = $(wildcard *.c)
 OBJECTS = $(SOURCES:.c=.o)
 
-COMPILE = gcc -g -Wall -Wextra $(INCLUDE) $(CFLAGS)
+COMPILE = gcc -g -Wall -Wextra $(INCLUDE) $(CFLAGS) -DF_CPU=$(CLOCK)
 ifneq ($(strip $(RELEASE)),)
-COMPILE = gcc -Wall -Wextra $(INCLUDE) $(CFLAGS)
+COMPILE = gcc -Wall -Wextra $(INCLUDE) $(CFLAGS) -DF_CPU=$(CLOCK)
 endif
 
 TARGET := uart_test.elf
