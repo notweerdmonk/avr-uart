@@ -51,18 +51,21 @@ ASSEMBLY_LISTINGS = $(SOURCES:.c=.lst)
 
 LIB_DIR := $(PROJECT_ROOT)/lib
 
+LIB_NAME = uart
+LIB = lib$(LIB_NAME).a
+
 LDFLAGS += -L$(LIB_DIR)
 
-LDLIBS = -luart
+LDLIBS = -l$(LIB_NAME)
 
 all: $(TARGET_HEX) size
 
 $(OBJECTS): $(SOURCES) $(INCLUDE_HEADERS)
 
-build-lib:
-	$(MAKE) -C $(PROJECT_ROOT) $@
+$(LIB_DIR)/$(LIB):
+	$(MAKE) -C $(PROJECT_ROOT)/src
 
-$(TARGET): $(OBJECTS) build-lib
+$(TARGET): $(OBJECTS) $(LIB_DIR)/$(LIB)
 	$(COMPILE) -o $@ $(OBJECTS) $(LDFLAGS) $(LDLIBS)
 
 # TODO: add EEPROM section
