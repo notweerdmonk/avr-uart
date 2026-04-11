@@ -21,6 +21,11 @@
 # SOFTWARE.
 #
 
+DEVICE = atmega328p
+ifeq ($(CLOCK),)
+export CLOCK = 16000000
+endif
+
 ifeq ($(BUILD_HOST),)
 
 AVR_CC = avr-gcc
@@ -28,11 +33,6 @@ AVR_AR = avr-ar
 AVR_OBJCOPY = avr-objcopy
 AVR_OBJDUMP = avr-objdump
 AVR_SIZE = avr-size
-
-DEVICE = atmega328p
-ifeq ($(CLOCK),)
-export CLOCK = 16000000
-endif
 
 ifeq ($(DEVICE),atmega2560)
 PROGRAMMER = wiring
@@ -156,9 +156,6 @@ else
 		INCLUDE += $(shell $(PKG_CONFIG) --cflags-only-I simavr-avr)
 		LDFLAGS += $(shell $(PKG_CONFIG) --libs simavr-avr)
 endif
-
-# Add header file paths
-override CFLAGS += $(INCLUDE)
 
 ifeq ($(strip $(SIMAVR)),)
 SIMAVR := $(shell command -v simavr)

@@ -45,8 +45,6 @@ $(foreach d, $(DEP_LIBS_MODULES), $(eval $(call MAKE_DEP_ROOT_DIR_VAR,$(d))))
 LIB_NAME = uart
 LIB = lib$(LIB_NAME).a
 
-LDFLAGS += -L$(LIB_DIR)
-
 DEP_SOURCES := $(wildcard *.c)
 DEP_OBJECTS = $(DEP_SOURCES:.c=.o)
 DEP_C_DEPS = $(DEP_SOURCES:.c=.d)
