@@ -30,7 +30,9 @@ AVR_OBJDUMP = avr-objdump
 AVR_SIZE = avr-size
 
 DEVICE = atmega328p
-CLOCK = 16000000
+ifeq ($(CLOCK),)
+export CLOCK = 16000000
+endif
 
 ifeq ($(DEVICE),atmega2560)
 PROGRAMMER = wiring
@@ -89,7 +91,7 @@ endif
 
 # Denotes that source code will be compiled for off-target testing
 ifneq ($(strip $(SIMTEST)),)
-override CFLAGS += -DAVR_UART_SIMTEST
+override CFLAGS += -DAVR_UART_SIMTEST -DDEVICE_NAME=$(DEVICE)
 endif
 
 # Demo mode with serial communication program
@@ -155,17 +157,37 @@ else
 		LDFLAGS += $(shell $(PKG_CONFIG) --libs simavr-avr)
 endif
 
+# Add header file paths
+override CFLAGS += $(INCLUDE)
+
 ifeq ($(strip $(SIMAVR)),)
 SIMAVR := $(shell command -v simavr)
 endif
 
-COMPILE = $(AVR_CC) -mmcu=$(DEVICE) -fshort-enums $(ERROR_REPORTING) $(CFLAGS) -DF_CPU=$(CLOCK) $(INCLUDE)
+COMPILE = $(AVR_CC) -mmcu=$(DEVICE) -fshort-enums $(ERROR_REPORTING) $(CFLAGS) -DF_CPU=$(CLOCK)
 ifneq ($(strip $(RELEASE)),)
 OPTIMIZATION = -Os
 CFLAGS = $(CFLAGS:-O%=-Os)
 CFLAGS = $(CFLAGS:-save-temps:)
-COMPILE = $(AVR)GCC) -mmcu=$(DEVICE) -fshort-enums $(ERROR_REPORTING) $(CFLAGS) -DF_CPU=$(CLOCK) $(INCLUDE)
+COMPILE = $(AVR)GCC) -mmcu=$(DEVICE) -fshort-enums $(ERROR_REPORTING) $(CFLAGS) -DF_CPU=$(CLOCK)
 endif
+
+ARCHIVE := $(AVR_AR) rc
+
+define BUILD_DEP_LIBS =
+$(MAKE) -C $(LIB_DIR)/$(@)
+endef
+
+define MAKE_DEP_LIB_DIR_VAR
+	export $$(shell echo $(1) | sed 's/[- ]/_/g' | tr 'a-z' 'A-Z')_LIB_DIR := $(LIB_DIR)/$(1)/lib
+endef
+
+define MAKE_DEP_ROOT_DIR_VAR
+	export $$(shell echo $(1) | sed 's/[- ]/_/g' | tr 'a-z' 'A-Z')_ROOT_DIR := $(LIB_DIR)/$(1)
+endef
+
+$(DEP_LIBS_MODULES):
+	$(BUILD_DEP_LIBS)
 
 %.o: %.S
 	$(COMPILE) -x assembler-with-cpp -c $< -o $@

@@ -25,18 +25,13 @@
 
 PROJECT_ROOT := $(realpath ../../)
 
-BUILD_HOST := 1
-include $(PROJECT_ROOT)/Makefile.common
-
-ifeq ($(INCLUDE_DIRS),)
-INCLUDE_DIRS := $(PROJECT_ROOT)/config $(PROJECT_ROOT)/include $(PROJECT_ROOT)/port
-INCLUDE_DIRS := $(foreach i, $(INCLUDE_DIRS), $(realpath $(i)))
-endif
-
 INCLUDE_DIRS += $(realpath .)
 
-INCLUDE += $(foreach i, $(INCLUDE_DIRS), -I$(realpath $(i)))
-INCLUDE_HEADERS = $(foreach dir, $(abspath $(INCLUDE_DIRS)), $(wildcard $(dir)/*.h))
+include $(PROJECT_ROOT)/avr-uart.mk
+
+BUILD_HOST := 1
+
+include $(PROJECT_ROOT)/Makefile.common
 
 SOURCES = $(wildcard *.c)
 OBJECTS = $(SOURCES:.c=.o)

@@ -23,14 +23,9 @@
 
 .DEFAULT_GOAL = all
 
-PROJECT_ROOT := $(CURDIR)
+PROJECT_PREFIX := AVR_UART
 
-# This variable is defined at the top-level (project root level) Makefile to
-# include the required upper directories containing header files. 
-# It needs to be defined on the command line to run make from any lower
-# directory.
-INCLUDE_DIRS := config include port
-export INCLUDE_DIRS := $(foreach i, $(INCLUDE_DIRS), $(realpath $(i)))
+PROJECT_ROOT := $(CURDIR)
 
 LIB_SRC_DIR = $(CURDIR)/src
 
@@ -38,8 +33,11 @@ LIB_DIR := $(PROJECT_ROOT)/lib
 
 TESTS_DIR := $(PROJECT_ROOT)/tests
 
-all: build-lib build-tests
+BUILD_LIB := 1
 
+include $(PROJECT_ROOT)/avr-uart.mk
+
+all: build-lib build-tests
 
 $(LIB_DIR):
 	mkdir -p $(LIB_DIR)
@@ -61,6 +59,9 @@ help:
 	$(MAKE) -C $(LIB_SRC_DIR) help
 
 clean:
+	for dep_dir in $(DEP_LIBS_MODULES); do \
+		$(MAKE) -C "$(LIB_DIR)/$${dep_dir}" clean; \
+	done
 	$(MAKE) -C $(LIB_SRC_DIR) clean
 	$(MAKE) -C $(TESTS_DIR) clean
-	rm -rf $(LIB_DIR)
+	rm -f $(LIB_DIR)/*.a

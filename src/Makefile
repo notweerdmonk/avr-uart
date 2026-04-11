@@ -23,23 +23,42 @@
 
 .DEFAULT_GOAL = all
 
+PROJECT_PREFIX := AVR_UART
+
 PROJECT_ROOT := $(realpath ../)
 
-ifeq ($(INCLUDE_DIRS),)
-INCLUDE_DIRS := $(PROJECT_ROOT)/config $(PROJECT_ROOT)/include $(PROJECT_ROOT)/port
-INCLUDE_DIRS := $(foreach i, $(INCLUDE_DIRS), $(realpath $(i)))
-endif
+LIB_DIR := $(PROJECT_ROOT)/lib
 
-INCLUDE_DIRS += $(realpath .)
+INCLUDE_DIRS := $(realpath .)
 
-INCLUDE += $(foreach i, $(INCLUDE_DIRS), -I$(realpath $(i)))
-INCLUDE_HEADERS = $(foreach dir, $(abspath $(INCLUDE_DIRS)), $(wildcard $(dir)/*.h))
+BUILD_LIB := 1
+
+include $(PROJECT_ROOT)/avr-uart.mk
+
+include $(PROJECT_ROOT)/Makefile.common
+
+$(foreach d, $(DEP_LIBS_MODULES), $(eval $(call MAKE_DEP_LIB_DIR_VAR,$(d))))
+$(foreach d, $(DEP_LIBS_MODULES), $(eval $(call MAKE_DEP_ROOT_DIR_VAR,$(d))))
+
+-include $(foreach d, $(DEP_LIBS_MODULES), $(LIB_DIR)/$(d)/$(d).mk)
+
+LIB_NAME = uart
+LIB = lib$(LIB_NAME).a
+
+LDFLAGS += -L$(LIB_DIR)
+
+DEP_SOURCES := $(wildcard *.c)
+DEP_OBJECTS = $(DEP_SOURCES:.c=.o)
+DEP_C_DEPS = $(DEP_SOURCES:.c=.d)
+DEP_PREPROCESSOR_OUTPUTS = $(DEP_SOURCES:.c=.i)
+DEP_ASSEMBLY_OUTPUTS = $(DEP_SOURCES:.c=.s)
+DEP_STACK_USAGE_REPORTS = $(DEP_SOURCES:.c=.su)
+DEP_ASSEMBLY_LISTINGS = $(DEP_SOURCES:.c=.lst)
 
 SOURCES := uart.c
 ifneq ($(MATCH),)
 SOURCES += match.c
 endif
-
 OBJECTS = $(SOURCES:.c=.o)
 C_DEPS = $(SOURCES:.c=.d)
 PREPROCESSOR_OUTPUTS = $(SOURCES:.c=.i)
@@ -47,18 +66,9 @@ ASSEMBLY_OUTPUTS = $(SOURCES:.c=.s)
 STACK_USAGE_REPORTS = $(SOURCES:.c=.su)
 ASSEMBLY_LISTINGS = $(SOURCES:.c=.lst)
 
-LIB_DIR := $(PROJECT_ROOT)/lib
-
-LIB_NAME = uart
-LIB = lib$(LIB_NAME).a
-
-include $(PROJECT_ROOT)/Makefile.common
-
-ARCHIVE := $(AVR_AR) rc
-
 all: $(LIB_DIR)/$(LIB)
 
-$(OBJECTS): $(SOURCES) $(INCLUDE_HEADERS)
+$(OBJECTS): $(DEP_SOURCES) $($$(PROJECT_PREFIX)_INCLUDE_HEADERS)
 
 $(LIB): $(OBJECTS)
 	$(ARCHIVE) $(LIB) $(OBJECTS)
@@ -70,5 +80,11 @@ $(LIB_DIR)/$(LIB): $(LIB) | $(LIB_DIR)
 	cp $(LIB) $(LIB_DIR)
 
 clean:
-	rm -f $(LIB) $(OBJECTS) $(C_DEPS) $(PREPROCESSOR_OUTPUTS) $(ASSEMBLY_OUTPUT) \
-		$(STACK_USAGE_REPORTS) $(ASSEMBLY_LISTINGS)
+	rm -f \
+		$(LIB) \
+		$(OBJECTS) \
+		$(C_DEPS) \
+		$(PREPROCESSOR_OUTPUTS) \
+		$(ASSEMBLY_OUTPUTS) \
+		$(ASSEMBLY_LISTINGS) \
+		$(STACK_USAGE_REPORTS)
