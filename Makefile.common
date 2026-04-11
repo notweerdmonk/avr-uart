@@ -251,6 +251,12 @@ serial-monitor:
 
 endif # !BUILD_HOST
 
+INCLUDE_DIRS := $(foreach i, $(INCLUDE_DIRS), $(realpath $(i)))
+INCLUDE_HEADERS := $(foreach dir, $(abspath $(INCLUDE_DIRS)), $(wildcard $(dir)/*.h))
+INCLUDE := $(foreach i, $(INCLUDE_DIRS), -I$(realpath $(i)))
+
+override CFLAGS += $(INCLUDE)
+
 help:
 	@echo "=== Build Targets ==="
 	@echo "all         			Build library and tests"

@@ -8,7 +8,7 @@ ifeq ($(strip $(AVR_UART_LIB_DIR)),)
 AVR_UART_LIB_DIR := $(LIB_DIR)
 endif
 
-INCLUDE_DIRS += \
+INCLUDE_DIRS := \
 $(foreach d,config include port,$(AVR_UART_ROOT_DIR)/$(d)) \
 $(foreach d, $(AVR_UART_DEP_LIBS_MODULES), $(AVR_UART_LIB_DIR)/$(d)/include) \
 $(foreach d, $(AVR_UART_DEP_LIBS_MODULES), $(AVR_UART_LIB_DIR)/$(d)/port)

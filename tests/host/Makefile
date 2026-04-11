@@ -29,11 +29,11 @@ PROJECT_ROOT := $(realpath ../../)
 
 LIB_DIR := $(PROJECT_ROOT)/lib
 
-INCLUDE_DIRS += $(realpath .)
-
 include $(PROJECT_ROOT)/avr-uart.mk
 
 BUILD_HOST := 1
+
+INCLUDE_DIRS += $(realpath .)
 
 include $(PROJECT_ROOT)/Makefile.common
 
