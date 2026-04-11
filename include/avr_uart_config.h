@@ -25,7 +25,7 @@
 #define _AVR_UART_UART_CONFIG_H_
 
 /**
- * @file uart_config.h
+ * @file avr_uart_config.h
  * @author notweerdmonk
  * @brief UART configuration definitions and defaults
  *
@@ -54,18 +54,18 @@
 /**
  * @brief UART configuration structure for runtime setup
  *
- * This structure is used with uart_setup() when AVR_UART_RUNTIME_CONFIG
+ * This structure is used with avr_uart_setup() when AVR_UART_RUNTIME_CONFIG
  * is defined. It allows configuring UART parameters at runtime rather
  * than compile time.
  *
  * @note All fields have sensible defaults if set to 0
  */
-typedef struct uart_config {
+typedef struct avr_uart_config {
   uint32_t baud_rate;    /**< UART baud rate (e.g., 9600, 115200) */
   uint8_t char_size : 4; /**< Number of data bits (5-8) */
   uint8_t stop_bits : 2; /**< Number of stop bits (1 or 2) */
   uint8_t parity : 2;    /**< Parity mode (none/even/odd) */
-} uart_config_t;
+} avr_uart_config_t;
 
 #endif /* AVR_UART_RUNTIME_CONFIG */
 
@@ -126,7 +126,7 @@ enum { UART_STOP_BITS_DEFAULT = 1 };
 /**
  * @brief UART baud rate override
  *
- * Define this before including uart_config.h to set custom baud rate.
+ * Define this before including avr_uart_config.h to set custom baud rate.
  * Default: 9600
  */
 #define UART_BAUD_RATE UART_BAUD_DEFAULT
@@ -136,7 +136,7 @@ enum { UART_STOP_BITS_DEFAULT = 1 };
 /**
  * @brief UART character size override
  *
- * Define this before including uart_config.h to set custom data bits (5-8).
+ * Define this before including avr_uart_config.h to set custom data bits (5-8).
  * Default: 8
  */
 #define UART_CHAR_SIZE UART_CHAR_SIZE_DEFAULT
@@ -146,7 +146,7 @@ enum { UART_STOP_BITS_DEFAULT = 1 };
 /**
  * @brief UART stop bits override
  *
- * Define this before including uart_config.h to set custom stop bits (1 or 2).
+ * Define this before including avr_uart_config.h to set custom stop bits (1 or 2).
  * Default: 1
  */
 #define UART_STOP_BITS UART_STOP_BITS_DEFAULT
@@ -156,7 +156,7 @@ enum { UART_STOP_BITS_DEFAULT = 1 };
 /**
  * @brief UART TX buffer size override
  *
- * Define this before including uart_config.h to set custom TX buffer size.
+ * Define this before including avr_uart_config.h to set custom TX buffer size.
  * Default: 64
  */
 #define UART_TX_BUFFER_LEN UART_TX_BUFFER_LEN_DEFAULT
@@ -166,7 +166,7 @@ enum { UART_STOP_BITS_DEFAULT = 1 };
 /**
  * @brief UART RX buffer size override
  *
- * Define this before including uart_config.h to set custom RX buffer size.
+ * Define this before including avr_uart_config.h to set custom RX buffer size.
  * Default: 64
  */
 #define UART_RX_BUFFER_LEN UART_RX_BUFFER_LEN_DEFAULT
@@ -176,7 +176,7 @@ enum { UART_STOP_BITS_DEFAULT = 1 };
 /**
  * @brief UART parity mode override
  *
- * Define this before including uart_config.h to set custom parity mode.
+ * Define this before including avr_uart_config.h to set custom parity mode.
  * Options: UART_PARITY_NONE, UART_PARITY_EVEN, UART_PARITY_ODD
  * Default: UART_PARITY_NONE
  */
@@ -187,7 +187,7 @@ enum { UART_STOP_BITS_DEFAULT = 1 };
 /**
  * @brief UART max sequence length override
  *
- * Define this before including uart_config.h to set max pattern match length.
+ * Define this before including avr_uart_config.h to set max pattern match length.
  * Default: 8
  */
 #define UART_MAX_SEQ_LEN UART_MAX_SEQ_LEN_DEFAULT
@@ -197,7 +197,7 @@ enum { UART_STOP_BITS_DEFAULT = 1 };
 /**
  * @brief UART max match count override
  *
- * Define this before including uart_config.h to set max number of patterns.
+ * Define this before including avr_uart_config.h to set max number of patterns.
  * Default: 8
  */
 #define UART_MATCH_MAX UART_MATCH_MAX_DEFAULT

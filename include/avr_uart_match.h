@@ -25,7 +25,7 @@
 #define _AVR_UART_MATCH_H_
 
 /**
- * @file match.h
+ * @file avr_uart_match.h
  * @author notweerdmonk
  * @brief Pattern matching API for UART
  *
@@ -41,7 +41,7 @@
  */
 
 #include <stdint.h>
-#include <uart.h>
+#include <avr_uart.h>
 
 /**
  * @brief Callback function type for pattern matches
@@ -59,7 +59,7 @@
  * }
  * @endcode
  */
-typedef void (*uart_match_handler)(void *);
+typedef void (*avr_uart_match_handler)(void *);
 
 /**
  * @brief Register a pattern to match against incoming UART data
@@ -78,14 +78,14 @@ typedef void (*uart_match_handler)(void *);
  *
  * @code
  * void on_command(void *data) {
- *     uart_send("Command received!\r\n", 20);
+ *     avr_uart_send("Command received!\r\n", 20);
  * }
  *
  * // Register pattern "cmd" to trigger callback
- * uart_register_match("cmd", on_command, NULL);
+ * avr_uart_register_match("cmd", on_command, NULL);
  * @endcode
  */
-uint8_t uart_register_match(const char *str, uart_match_handler handler,
+uint8_t avr_uart_register_match(const char *str, avr_uart_match_handler handler,
     void *data);
 
 /**
@@ -96,10 +96,10 @@ uint8_t uart_register_match(const char *str, uart_match_handler handler,
  * @param str Pattern string to remove (must match exactly)
  *
  * @code
- * uart_deregister_match("cmd");  // Remove "cmd" pattern
+ * avr_uart_deregister_match("cmd");  // Remove "cmd" pattern
  * @endcode
  */
-void uart_deregister_match(const char *str);
+void avr_uart_deregister_match(const char *str);
 
 /**
  * @brief Check for and process triggered pattern matches
@@ -112,11 +112,11 @@ void uart_deregister_match(const char *str);
  *
  * @code
  * while (1) {
- *     uart_check_match();  // Process any triggered patterns
+ *     avr_uart_check_match();  // Process any triggered patterns
  *     // Do other work
  * }
  * @endcode
  */
-void uart_check_match();
+void avr_uart_check_match();
 
 #endif /* _AVR_UART_MATCH_H_ */

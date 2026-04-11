@@ -53,9 +53,9 @@ DEP_ASSEMBLY_OUTPUTS = $(DEP_SOURCES:.c=.s)
 DEP_STACK_USAGE_REPORTS = $(DEP_SOURCES:.c=.su)
 DEP_ASSEMBLY_LISTINGS = $(DEP_SOURCES:.c=.lst)
 
-SOURCES := uart.c
+SOURCES := avr_uart.c
 ifneq ($(MATCH),)
-SOURCES += match.c
+SOURCES += avr_uart_match.c
 endif
 OBJECTS = $(SOURCES:.c=.o)
 C_DEPS = $(SOURCES:.c=.d)
@@ -80,9 +80,9 @@ $(LIB_DIR)/$(LIB): $(LIB) | $(LIB_DIR)
 clean:
 	rm -f \
 		$(LIB) \
-		$(OBJECTS) \
-		$(C_DEPS) \
-		$(PREPROCESSOR_OUTPUTS) \
-		$(ASSEMBLY_OUTPUTS) \
-		$(ASSEMBLY_LISTINGS) \
-		$(STACK_USAGE_REPORTS)
+		$(DEP_OBJECTS) \
+		$(DEP_C_DEPS) \
+		$(DEP_PREPROCESSOR_OUTPUTS) \
+		$(DEP_ASSEMBLY_OUTPUTS) \
+		$(DEP_ASSEMBLY_LISTINGS) \
+		$(DEP_STACK_USAGE_REPORTS)

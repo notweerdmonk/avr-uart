@@ -39,7 +39,7 @@
  */
 
 #include <config.h>
-#include <uart.h>
+#include <avr_uart.h>
 #include <string.h>
 #include <util/delay.h>
 
@@ -121,9 +121,9 @@ static volatile char num_matches = 0;
  *
  * @param data Pointer to match_cb_data structure
  */
-void uart_match_cb(void *data) {
+void avr_uart_match_cb(void *data) {
   ++num_matches;
-  uart_send(
+  avr_uart_send(
       ((struct match_cb_data*)data)->str,
       ((struct match_cb_data*)data)->len
     );
@@ -161,8 +161,8 @@ int main() {
 
 #ifdef AVR_UART_RUNTIME_CONFIG
 
-  uart_setup(
-      &(struct uart_config){
+  avr_uart_setup(
+      &(struct avr_uart_config){
         .baud_rate = 0,
         .char_size = UART_CHAR_SIZE,
         .stop_bits = UART_STOP_BITS,
@@ -172,7 +172,7 @@ int main() {
 
 #else /* !AVR_UART_RUNTIME_CONFIG */
 
-  uart_setup();
+  avr_uart_setup();
 
 #endif /* AVR_UART_RUNTIME_CONFIG */
   
@@ -206,7 +206,7 @@ int main() {
 
 #else /* !AVR_UART_STDIO */
 
-  uart_sendln(teststring, strlen(teststring));
+  avr_uart_sendln(teststring, strlen(teststring));
 
 #endif /* AVR_UART_STDIO */
 
@@ -219,13 +219,13 @@ int main() {
   size_t teststringlen = strlen(teststring);
   char buffer[teststringlen + 1];
 
-  uart_peek(buffer, teststringlen);
+  avr_uart_peek(buffer, teststringlen);
   buffer[teststringlen] = '\0';
 
   if (!strncmp(teststring, buffer, teststringlen)) {
-    uart_send(okstr, sizeof(okstr) - 1);
+    avr_uart_send(okstr, sizeof(okstr) - 1);
   } else {
-    uart_send(erstr, sizeof(erstr) - 1);
+    avr_uart_send(erstr, sizeof(erstr) - 1);
   }
 
   /* Let the characters be send over UART by UDRE interrupt */
@@ -233,15 +233,15 @@ int main() {
                                           // time
 
   /* Actually consume data from UART buffer */
-  uart_recv(buffer, teststringlen);
+  avr_uart_recv(buffer, teststringlen);
 
-  size_t len = uart_recv(buffer, teststringlen / 2);
+  size_t len = avr_uart_recv(buffer, teststringlen / 2);
   buffer[len] = '\0';
  
   if (!strncmp(teststring, buffer, teststringlen / 2)) {
-    uart_send(okstr, sizeof(okstr) - 1);
+    avr_uart_send(okstr, sizeof(okstr) - 1);
   } else {
-    uart_send(erstr, sizeof(erstr) - 1);
+    avr_uart_send(erstr, sizeof(erstr) - 1);
   }
 
   /* Let the characters be send over UART by UDRE interrupt */
@@ -259,39 +259,39 @@ int main() {
   const char str6[] = "Match 6";
 
   struct match_cb_data data1 = { str1, strlen(str1) };
-  uart_register_match("***", uart_match_cb, (void*)&data1);
+  avr_uart_register_match("***", avr_uart_match_cb, (void*)&data1);
 
   struct match_cb_data data2 = { str2, strlen(str2) };
-  uart_register_match("qwe", uart_match_cb, (void*)&data2);
+  avr_uart_register_match("qwe", avr_uart_match_cb, (void*)&data2);
 
   struct match_cb_data data3 = { str3, strlen(str3) };
-  uart_register_match("qwerty", uart_match_cb, (void*)&data3);
+  avr_uart_register_match("qwerty", avr_uart_match_cb, (void*)&data3);
 
   struct match_cb_data data4 = { str4, strlen(str4) };
-  uart_register_match("123", uart_match_cb, (void*)&data4);
+  avr_uart_register_match("123", avr_uart_match_cb, (void*)&data4);
 
   struct match_cb_data data5 = { str5, strlen(str5) };
-  uart_register_match("?", uart_match_cb, (void*)&data5);
+  avr_uart_register_match("?", avr_uart_match_cb, (void*)&data5);
 
   struct match_cb_data data6 = { str6, strlen(str6) };
   /* F6 */
-  //uart_register_match("\x1B[17~", uart_match_cb, (void*)&data6);
+  //uart_register_match("\x1B[17~", avr_uart_match_cb, (void*)&data6);
   /* ANSI foreground red */
-  uart_register_match(
+  avr_uart_register_match(
       "\x1B[1;31mtext in red\x1b[1;0m",
-      uart_match_cb,
+      avr_uart_match_cb,
       (void*)&data6
     );
 
-  uart_deregister_match("***");
-  uart_register_match("!@#$", uart_match_cb, (void*)&data1);
+  avr_uart_deregister_match("***");
+  avr_uart_register_match("!@#$", avr_uart_match_cb, (void*)&data1);
 
-  uart_deregister_match("123");
-  uart_register_match("1234", uart_match_cb, (void*)&data4);
+  avr_uart_deregister_match("123");
+  avr_uart_register_match("1234", avr_uart_match_cb, (void*)&data4);
 
   /* Six matches shall succeed */
   while (num_matches < 6) {
-    uart_check_match();
+    avr_uart_check_match();
   }
 
   _delay_us(us_per_byte * sizeof(str4));
@@ -306,7 +306,7 @@ int main() {
 
 #else /* !(AVR_UART_SIMULATION || AVR_UART_SIMTEST) || AVR_UART_DEMO */
 
-  for(;;uart_send_byte(uart_recv_byte()));
+  for(;;avr_uart_send_byte(avr_uart_recv_byte()));
 
 #endif /* AVR_UART_SIMULATION || AVR_UART_SIMTEST) && !AVR_UART_DEMO */
 

@@ -22,7 +22,7 @@
 */
 
 /**
- * @file uart.c
+ * @file avr_uart.c
  * @author notweerdmonk
  * @brief UART module implementation
  *
@@ -31,8 +31,8 @@
  * data movement.
  */
 
-#include <uart.h>
 #include <string.h>
+#include <avr_uart.h>
 #include <avr_portable.h>
 #include <avr_ascii.h>
 #include <util/delay.h>
@@ -103,7 +103,7 @@ struct _uart {
  *
  * @param udr The received byte from UART data register
  */
-extern void uart_do_match(uint8_t udr);
+extern void avr_uart_do_match(uint8_t udr);
 
 /*****************************************************************************/
 /* Functions */
@@ -122,11 +122,11 @@ extern void uart_do_match(uint8_t udr);
  * @param stream FILE stream (unused)
  * @return 0 on success, EOF on error
  */
-int uart_stream_putchar(char c, FILE *stream) {
+int avr_uart_stream_putchar(char c, FILE *stream) {
   if (c == '\n') {
-    uart_stream_putchar('\r', stream);
+    avr_uart_stream_putchar('\r', stream);
   }
-  uart_send_byte(c);
+  avr_uart_send_byte(c);
   return 0;
 }
 
@@ -141,13 +141,13 @@ int uart_stream_putchar(char c, FILE *stream) {
  *
  * @note Returns EOF for null character (0x00)
  */
-int uart_stream_getchar(FILE *stream) {
+int avr_uart_stream_getchar(FILE *stream) {
   /* 
    * A null character can be received but shall get interpreted as string
    * terminator.
    */
   char c;
-  return (c = uart_recv_byte()) == '\0' ? EOF : c;
+  return (c = avr_uart_recv_byte()) == '\0' ? EOF : c;
 }
 
 /**
@@ -157,14 +157,14 @@ int uart_stream_getchar(FILE *stream) {
  * Combined input/output stream configured for UART communication.
  */
 static
-FILE __uart_iostream = FDEV_SETUP_STREAM(uart_stream_putchar,
-    uart_stream_getchar, _FDEV_SETUP_RW);
+FILE __uart_iostream = FDEV_SETUP_STREAM(avr_uart_stream_putchar,
+    avr_uart_stream_getchar, _FDEV_SETUP_RW);
 
 #endif /* AVR_UART_STDIO */
 
 #ifdef AVR_UART_RUNTIME_CONFIG
 
-void uart_setup(struct uart_config *config) {
+void avr_uart_setup(struct avr_uart_config *config) {
   if (!config) {
     return;
   }
@@ -180,7 +180,7 @@ void uart_setup(struct uart_config *config) {
 
 #else /* !AVR_UART_RUNTIME_CONFIG */
 
-void uart_setup() {
+void avr_uart_setup() {
 
   PORT_UART_SET_BAUD_RATE(UART_BAUD_RATE);
   PORT_UART_SET_CHAR_SIZE(UART_CHAR_SIZE);
@@ -195,7 +195,7 @@ void uart_setup() {
   stdout = stdin = stderr = &__uart_iostream;
 #endif /* AVR_UART_STDIO */
 
-  uart_flush();
+  avr_uart_flush();
 }
 
 /**
@@ -238,7 +238,7 @@ ISR(PORT_RXC_VECT, ISR_BLOCK) {
 #ifdef AVR_UART_MATCH
 
   uint8_t udr = PORT_UDR;
-  uart_do_match(udr);
+  avr_uart_do_match(udr);
 
 #else /* !AVR_UART_MATCH */
 
@@ -254,13 +254,13 @@ ISR(PORT_RXC_VECT, ISR_BLOCK) {
   }
 }
 
-void uart_flush_rx() {
+void avr_uart_flush_rx() {
 
   uart.rx_in = uart.rx_out = 0;
   uart.rx_count = 0;
 }
 
-void uart_flush_tx() {
+void avr_uart_flush_tx() {
 
   while(uart.tx_count > 0);
 
@@ -268,12 +268,12 @@ void uart_flush_tx() {
   uart.tx_count = 0;
 }
 
-char uart_peek_byte(void) {
+char avr_uart_peek_byte(void) {
 
   return (uart.rx_count > 0 ? uart.rx_buffer[uart.rx_out]: 0);
 }
 
-char uart_recv_byte() {
+char avr_uart_recv_byte() {
 
   /* Wait till atleast one character has been received */
   while ( !(uart.rx_count > 0) );
@@ -291,7 +291,7 @@ char uart_recv_byte() {
   return c;
 }
 
-char uart_try_recv_byte() {
+char avr_uart_try_recv_byte() {
 
   return (uart.rx_count > 0 ?
       ({
@@ -310,7 +310,7 @@ char uart_try_recv_byte() {
     0);
 }
 
-size_t uart_peek(char *str, size_t len) {
+size_t avr_uart_peek(char *str, size_t len) {
 
   if (len > UART_RX_BUFFER_LEN) {
     len = UART_RX_BUFFER_LEN;
@@ -335,21 +335,21 @@ size_t uart_peek(char *str, size_t len) {
 
 /*
  * When `len` is greater than `rx_count`,
- * uart_recv_byte will block and the loop shall run until len reaches 0.
+ * avr_uart_recv_byte will block and the loop shall run until len reaches 0.
  */
-size_t uart_recv(char* str, size_t len) {
+size_t avr_uart_recv(char* str, size_t len) {
 
   size_t n = 0;
 
   while(len--) {
-    *str++ = uart_recv_byte();
+    *str++ = avr_uart_recv_byte();
     n++;
   }
 
   return n;
 }
 
-void uart_send_byte(char c) {
+void avr_uart_send_byte(char c) {
 
   while (uart.tx_count == UART_TX_BUFFER_LEN);
 
@@ -364,7 +364,7 @@ void uart_send_byte(char c) {
   PORT_ENABLE_UDRE_INTERRUPT();
 }
 
-char uart_try_send_byte(char c) {
+char avr_uart_try_send_byte(char c) {
 
   return ( (uart.tx_count < UART_TX_BUFFER_LEN) &&
       ({
@@ -381,19 +381,19 @@ char uart_try_send_byte(char c) {
     );
 }
 
-void uart_send(const char *s, size_t len) {
+void avr_uart_send(const char *s, size_t len) {
 
-  while (len--) uart_send_byte(*s++);
+  while (len--) avr_uart_send_byte(*s++);
 }
 
-void uart_pgm_send(PGM_P s) {
+void avr_uart_pgm_send(PGM_P s) {
 
   for (char c = pgm_read_byte(s); c != 0; c = pgm_read_byte(++s)) {
-    uart_send_byte(c);
+    avr_uart_send_byte(c);
   } 
 }
 
-void uart_send_uint(unsigned int u) {
+void avr_uart_send_uint(unsigned int u) {
 
 #if (__SIZEOF_INT__ == 1)
   uint8_t digits[4];
@@ -412,45 +412,45 @@ void uart_send_uint(unsigned int u) {
   }
 
   while (idx > 0) {
-    uart_send_byte(avr_util_ascii(digits[--idx]));
+    avr_uart_send_byte(avr_util_ascii(digits[--idx]));
   }
 }
 
-void uart_send_int(int n) {
+void avr_uart_send_int(int n) {
 
   if (n < 0) {
-    uart_send_byte('-');
+    avr_uart_send_byte('-');
     n = -n;
   }
 
-  uart_send_uint(n);
+  avr_uart_send_uint(n);
 }
 
 /* TODO: sprintf with -lprintf_flt or dtostrf, but bigger size */
-void uart_send_float(float f, uint8_t m) {
+void avr_uart_send_float(float f, uint8_t m) {
 
   /* NOTE: fractional part greater than 4 does not work */
   if (m > 4) m = 4;
 
-  uart_send_int(f);
-  uart_send_byte('.');
+  avr_uart_send_int(f);
+  avr_uart_send_byte('.');
 
   f = f - (int)f;
   for (uint8_t i = 0; i < m; i++) {
     f = f * 10;
   }
 
-  uart_send_int(f);
+  avr_uart_send_int(f);
 }
 
-void uart_send_double(double d, uint8_t m) {
+void avr_uart_send_double(double d, uint8_t m) {
 
 }
 
-void uart_newline() {
-  uart_send(AVR_UTIL_CONSTANT_CRLF, 2);
+void avr_uart_newline() {
+  avr_uart_send(AVR_UTIL_CONSTANT_CRLF, 2);
 }
 
-void uart_clear() {
-  uart_send(AVR_UTIL_CONSTANT_CLEARSCREEN_STRING, 7);
+void avr_uart_clear() {
+  avr_uart_send(AVR_UTIL_CONSTANT_CLEARSCREEN_STRING, 7);
 }

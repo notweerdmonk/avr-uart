@@ -25,7 +25,7 @@
 #define _AVR_UART_H_
 
 /**
- * @file uart.h
+ * @file avr_uart.h
  * @author notweerdmonk
  * @brief Public API for the UART module
  *
@@ -41,9 +41,9 @@
 #include <stddef.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <avr_uart_config.h>
 #include <avr_utility.h>
-#include <uart_config.h>
-#include <match.h>
+#include <avr_uart_match.h>
 
 #ifdef AVR_UART_STDIO
 #include <stdio.h>
@@ -57,7 +57,7 @@
  * Configures the UART hardware with the specified parameters at runtime.
  * This allows changing UART settings after compilation.
  *
- * @param config Pointer to uart_config structure containing baud rate,
+ * @param config Pointer to avr_uart_config structure containing baud rate,
  *               character size, stop bits, and parity settings
  *
  * @note If config is NULL or baud_rate is 0, defaults will be used
@@ -65,41 +65,41 @@
  *
  * @example
  * @code
- * struct uart_config cfg = {
+ * struct avr_uart_config cfg = {
  *     .baud_rate = 115200,
  *     .char_size = 8,
  *     .stop_bits = 1,
  *     .parity = UART_PARITY_NONE
  * };
- * uart_setup(&cfg);
+ * avr_uart_setup(&cfg);
  * @endcode
  */
-void uart_setup(struct uart_config *config);
+void avr_uart_setup(struct avr_uart_config *config);
 
 #else /* !AVR_UART_RUNTIME_CONFIG */
 
 /**
  * @brief Initialize UART with compile-time configuration
  *
- * Configures the UART hardware using the settings defined in uart_config.h
+ * Configures the UART hardware using the settings defined in avr_uart_config.h
  * at compile time. This is the default mode when AVR_UART_RUNTIME_CONFIG is
  * not defined.
  *
  * @note Configuration is determined by UART_BAUD_RATE, UART_CHAR_SIZE,
- *       UART_STOP_BITS, and UART_PARITY macros in uart_config.h
+ *       UART_STOP_BITS, and UART_PARITY macros in avr_uart_config.h
  *
  * @example
  * @code
- * // In uart_config.h:
+ * // In avr_uart_config.h:
  * // #define UART_BAUD_RATE 9600
  * // #define UART_CHAR_SIZE 8
  * // #define UART_STOP_BITS 1
  * // #define UART_PARITY UART_PARITY_NONE
  *
- * uart_setup();  // Uses compile-time settings
+ * avr_uart_setup();  // Uses compile-time settings
  * @endcode
  */
-void uart_setup();
+void avr_uart_setup();
 
 #endif /* AVR_UART_RUNTIME_CONFIG */
 
@@ -109,7 +109,7 @@ void uart_setup();
  * Clears all data from the RX buffer and resets buffer indices.
  * Does not wait for transmission to complete.
  */
-void uart_flush_rx(void);
+void avr_uart_flush_rx(void);
 
 /**
  * @brief Flush the transmit buffer
@@ -117,31 +117,31 @@ void uart_flush_rx(void);
  * Waits for all data in the TX buffer to be transmitted before
  * clearing the buffer and resetting indices.
  */
-void uart_flush_tx(void);
+void avr_uart_flush_tx(void);
 
 /**
  * @brief Flush both TX and RX buffers
  *
- * Combines uart_flush_rx() and uart_flush_tx() to clear both
- * transmit and receive buffers. Note that uart_flush_tx() blocks
+ * Combines avr_uart_flush_rx() and avr_uart_flush_tx() to clear both
+ * transmit and receive buffers. Note that avr_uart_flush_tx() blocks
  * until all pending transmission is complete.
  */
-#define uart_flush() uart_flush_rx(), uart_flush_tx()
+#define avr_uart_flush() avr_uart_flush_rx(), avr_uart_flush_tx()
 
 /**
  * @brief Peek at next byte in receive buffer without removing it
  *
- * Reads the next byte that would be returned by uart_recv_byte() without
+ * Reads the next byte that would be returned by avr_uart_recv_byte() without
  * removing it from the buffer. Useful for checking incoming data without
  * consuming it.
  *
  * @return The next character in the buffer, or 0 if buffer is empty
  *
  * @code
- * char c = uart_peek_byte();  // Check next byte without consuming
+ * char c = avr_uart_peek_byte();  // Check next byte without consuming
  * @endcode
  */
-char uart_peek_byte(void);
+char avr_uart_peek_byte(void);
 
 /**
  * @brief Receive a single byte from UART (blocking)
@@ -155,10 +155,10 @@ char uart_peek_byte(void);
  * @warning Disables interrupts briefly during buffer access
  *
  * @code
- * char c = uart_recv_byte();  // Blocks until data received
+ * char c = avr_uart_recv_byte();  // Blocks until data received
  * @endcode
  */
-char uart_recv_byte(void);
+char avr_uart_recv_byte(void);
 
 /**
  * @brief Try to receive a single byte from UART (non-blocking)
@@ -173,12 +173,12 @@ char uart_recv_byte(void);
  *
  * @code
  * char c;
- * while ((c = uart_try_recv_byte()) == 0) {
+ * while ((c = avr_uart_try_recv_byte()) == 0) {
  *     // Do other work
  * }
  * @endcode
  */
-char uart_try_recv_byte(void);
+char avr_uart_try_recv_byte(void);
 
 /**
  * @brief Peek multiple bytes from receive buffer without removing
@@ -194,10 +194,10 @@ char uart_try_recv_byte(void);
  *
  * @code
  * char buffer[32];
- * uart_peek(buffer, 10);  // Peek 10 bytes without removing
+ * avr_uart_peek(buffer, 10);  // Peek 10 bytes without removing
  * @endcode
  */
-size_t uart_peek(char* str, size_t n);
+size_t avr_uart_peek(char* str, size_t n);
 
 /**
  * @brief Receive multiple bytes from UART
@@ -213,10 +213,10 @@ size_t uart_peek(char* str, size_t n);
  *
  * @code
  * char buffer[32];
- * uart_recv(buffer, 10);  // Blocks until 10 bytes received
+ * avr_uart_recv(buffer, 10);  // Blocks until 10 bytes received
  * @endcode
  */
-size_t uart_recv(char* str, size_t n);
+size_t avr_uart_recv(char* str, size_t n);
 
 /**
  * @brief Send a single byte via UART
@@ -229,11 +229,11 @@ size_t uart_recv(char* str, size_t n);
  * @note Transmission occurs asynchronously via ISR
  *
  * @code
- * uart_send_byte('A');       // Send single character
- * uart_send_byte(0x55);      // Send hex value
+ * avr_uart_send_byte('A');       // Send single character
+ * avr_uart_send_byte(0x55);      // Send hex value
  * @endcode
  */
-void uart_send_byte(char c);
+void avr_uart_send_byte(char c);
 
 /**
  * @brief Try to send a single byte via UART (non-blocking)
@@ -246,12 +246,12 @@ void uart_send_byte(char c);
  * @note Use this for non-blocking transmit
  *
  * @code
- * while (!uart_try_send_byte('A')) {
+ * while (!avr_uart_try_send_byte('A')) {
  *     // Wait for buffer space
  * }
  * @endcode
  */
-char uart_try_send_byte(char c);
+char avr_uart_try_send_byte(char c);
 
 /**
  * @brief Send multiple bytes via UART
@@ -265,16 +265,16 @@ char uart_try_send_byte(char c);
  * @note Blocks if TX buffer becomes full
  *
  * @code
- * uart_send("Hello", 5);    // Send string from RAM
- * uart_send(data, sizeof(data));  // Send buffer
+ * avr_uart_send("Hello", 5);    // Send string from RAM
+ * avr_uart_send(data, sizeof(data));  // Send buffer
  * @endcode
  */
-void uart_send(const char* str, size_t len);
+void avr_uart_send(const char* str, size_t len);
 
 /**
  * @brief Send a string from program memory
  *
- * Similar to uart_send() but reads from program memory (flash) instead
+ * Similar to avr_uart_send() but reads from program memory (flash) instead
  * of RAM. Useful for sending constant strings without consuming RAM.
  *
  * @param str Pointer to string in program memory (PGM_P type)
@@ -282,7 +282,7 @@ void uart_send(const char* str, size_t len);
  * @note Uses pgm_read_byte() to access data
  * @note String must be null-terminated
  */
-void uart_pgm_send(PGM_P str);
+void avr_uart_pgm_send(PGM_P str);
 
 /**
  * @brief Send an unsigned integer as decimal text
@@ -293,10 +293,10 @@ void uart_pgm_send(PGM_P str);
  * @param u Unsigned integer to send
  *
  * @code
- * uart_send_uint(12345);  // Sends "12345"
+ * avr_uart_send_uint(12345);  // Sends "12345"
  * @endcode
  */
-void uart_send_uint(unsigned int u);
+void avr_uart_send_uint(unsigned int u);
 
 /**
  * @brief Send a signed integer as decimal text
@@ -307,10 +307,10 @@ void uart_send_uint(unsigned int u);
  * @param n Signed integer to send
  *
  * @code
- * uart_send_int(-42);  // Sends "-42"
+ * avr_uart_send_int(-42);  // Sends "-42"
  * @endcode
  */
-void uart_send_int(int n);
+void avr_uart_send_int(int n);
 
 /**
  * @brief Send a floating-point number as text
@@ -325,10 +325,10 @@ void uart_send_int(int n);
  * @note Fractional part > 4 digits may not work correctly
  *
  * @code
- * uart_send_float(3.14159, 2);  // Sends "3.14"
+ * avr_uart_send_float(3.14159, 2);  // Sends "3.14"
  * @endcode
  */
-void uart_send_float(float f, uint8_t m);
+void avr_uart_send_float(float f, uint8_t m);
 
 /**
  * @brief Send a newline (CRLF)
@@ -336,18 +336,18 @@ void uart_send_float(float f, uint8_t m);
  * Sends carriage return + line feed sequence. Use this for
  * compatibility with terminals that expect CRLF line endings.
  */
-void uart_newline(void);
+void avr_uart_newline(void);
 
 /**
  * @brief Send string followed by newline
  *
- * Macro that combines uart_send() and uart_newline() for
+ * Macro that combines avr_uart_send() and avr_uart_newline() for
  * convenient line output.
  *
  * @param str Pointer to string to send
  * @param len Length of string
  */
-#define uart_sendln(str, len) uart_send((str), (len)), uart_newline()
+#define avr_uart_sendln(str, len) avr_uart_send((str), (len)), avr_uart_newline()
 
 /**
  * @brief Clear the terminal screen
@@ -355,6 +355,6 @@ void uart_newline(void);
  * Sends an ANSI escape sequence that clears the terminal screen
  * and moves cursor to home position.
  */
-void uart_clear(void);
+void avr_uart_clear(void);
 
 #endif /* _AVR_UART_H_ */

@@ -13,14 +13,13 @@
  * @section files Source Files
  *
  * @subsection headers Header Files
- * - @ref uart.h "UART Public API"
- * - @ref uart_config.h "UART Configuration"
- * - @ref match.h "Pattern Matching API"
- * - @ref port.h "Port Abstraction Layer"
+ * - @ref avr_uart_config.h "UART Configuration"
+ * - @ref avr_uart.h "UART Public API"
+ * - @ref avr_uart_match.h "Pattern Matching API"
  *
  * @subsection impl Implementation Files
- * - @ref uart.c "UART Implementation"
- * - @ref match.c "Pattern Matching Implementation"
+ * - @ref avr_uart.c "UART Implementation"
+ * - @ref avr_uart_match.c "Pattern Matching Implementation"
  *
  * @section tests Test Files
  *
@@ -32,10 +31,9 @@
  *
  * @section links Quick Links
  *
- * - @ref uart.h
- * - @ref uart_config.h
- * - @ref match.h
- * - @ref port.h
- * - @ref uart.c
- * - @ref match.c
+ * - @ref avr_uart_config.h
+ * - @ref avr_uart.h
+ * - @ref avr_uart_match.h
+ * - @ref avr_uart.c
+ * - @ref avr_uart_match.c
  */

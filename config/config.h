@@ -39,7 +39,7 @@
  * Uncomment the line(s) which contain definition of desired macro(s).
  */
 
-/* Enable runtime UART configuration (call uart_setup with config struct) */
+/* Enable runtime UART configuration (call avr_uart_setup with config struct) */
 //#define AVR_UART_RUNTIME_CONFIG
 
 /* Enable use of UART in I/O streams (stdin/stdout/stderr) */

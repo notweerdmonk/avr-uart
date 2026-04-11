@@ -24,7 +24,7 @@
 #ifdef AVR_UART_MATCH
 
 /**
- * @file match.c
+ * @file avr_uart_match.c
  * @author notweerdmonk
  * @brief Pattern matching implementation for UART
  *
@@ -36,7 +36,7 @@
  */
 
 #include <stdint.h>
-#include <uart.h>
+#include <avr_uart.h>
 
 /**
  * @internal
@@ -57,7 +57,7 @@ struct _uart_match {
   uint16_t triggered_mask;
 } match;
 
-uint8_t uart_register_match(const char *str, uart_match_handler handler,
+uint8_t avr_uart_register_match(const char *str, avr_uart_match_handler handler,
     void *data) {
   if (!handler) {
     return -1;
@@ -83,7 +83,7 @@ uint8_t uart_register_match(const char *str, uart_match_handler handler,
   return 0;
 }
 
-void uart_deregister_match(const char *str) {
+void avr_uart_deregister_match(const char *str) {
 
   if (str == NULL) {
     return;
@@ -134,7 +134,7 @@ void uart_deregister_match(const char *str) {
   }
 }
 
-void uart_check_match() {
+void avr_uart_check_match() {
 
   uint16_t triggered_mask = match.triggered_mask;
   uint16_t triggered = 1;
@@ -169,7 +169,7 @@ void uart_check_match() {
  * @note Uses partial matching - resets on mismatch but restarts if
  *       next byte matches pattern start
  */
-void uart_do_match(uint8_t udr) {
+void avr_uart_do_match(uint8_t udr) {
 
   if (match.match_idx_max == 0) {
     return;

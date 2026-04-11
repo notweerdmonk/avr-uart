@@ -56,7 +56,7 @@
 #include <ctype.h>
 
 #include <config.h>
-#include <uart_config.h>
+#include <avr_uart_config.h>
 #include <logger.h>
 
 #define STRINGIFY(s) #s
@@ -386,7 +386,7 @@ int setup_serial_device(int serdev, void *param) {
 
 #ifdef AVR_UART_RUNTIME_CONFIG
 
-  struct uart_config *cfgptr = param;
+  struct avr_uart_config *cfgptr = param;
   baud_rate = cfgptr->baud_rate;
   char_size = cfgptr->char_size;
   stop_bits = cfgptr->stop_bits;
@@ -654,7 +654,7 @@ int send_test(int nargs, ...) {
 
   serial_recv(serdev, buffer, sizeof(teststring) + 2, 3);
   
-  /* uart_sendln sends CRLF after the end of a string */
+  /* avr_uart_sendln sends CRLF after the end of a string */
   if (strncmp(buffer, teststring, sizeof(teststring)) ||
       strncmp(buffer + sizeof(teststring), "\r\n", 2)) {
     return -1;
@@ -831,7 +831,7 @@ int main(int argc, char *argv[]) {
 
   setup_serial_device(
       serdev,
-      &(struct uart_config){
+      &(struct avr_uart_config){
         .baud_rate = 0,
         .char_size = UART_CHAR_SIZE,
         .stop_bits = UART_STOP_BITS,
