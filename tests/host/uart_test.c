@@ -369,7 +369,7 @@ int open_serial_device(const char *device) {
 int setup_serial_device(int serdev, void *param) {
 #ifdef AVR_UART_RUNTIME_CONFIG
 
-  if (!config) {
+  if (!param) {
     return -1;
   }
 
