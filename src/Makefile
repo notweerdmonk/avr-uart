@@ -37,10 +37,10 @@ include $(PROJECT_ROOT)/avr-uart.mk
 
 include $(PROJECT_ROOT)/Makefile.common
 
-$(foreach d, $(DEP_LIBS_MODULES), $(eval $(call MAKE_DEP_LIB_DIR_VAR,$(d))))
-$(foreach d, $(DEP_LIBS_MODULES), $(eval $(call MAKE_DEP_ROOT_DIR_VAR,$(d))))
+$(foreach d, $($$(PROJECT_PREFIX)_DEP_LIBS_MODULES), $(eval $(call MAKE_DEP_LIB_DIR_VAR,$(d))))
+$(foreach d, $($$(PROJECT_PREFIX)_DEP_LIBS_MODULES), $(eval $(call MAKE_DEP_ROOT_DIR_VAR,$(d))))
 
--include $(foreach d, $(DEP_LIBS_MODULES), $(LIB_DIR)/$(d)/$(d).mk)
+-include $(foreach d, $($$(PROJECT_PREFIX)_DEP_LIBS_MODULES), $(LIB_DIR)/$(d)/$(d).mk)
 
 LIB_NAME = uart
 LIB = lib$(LIB_NAME).a

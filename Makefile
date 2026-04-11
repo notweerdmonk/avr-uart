@@ -59,7 +59,7 @@ help:
 	$(MAKE) -C $(LIB_SRC_DIR) help
 
 clean:
-	for dep_dir in $(DEP_LIBS_MODULES); do \
+	for dep_dir in $($$(PROJECT_PREFIX)_DEP_LIBS_MODULES); do \
 		$(MAKE) -C "$(LIB_DIR)/$${dep_dir}" clean; \
 	done
 	$(MAKE) -C $(LIB_SRC_DIR) clean

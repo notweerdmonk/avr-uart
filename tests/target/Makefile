@@ -39,10 +39,10 @@ TARGET_HEX = $(TARGET_NAME).hex
 
 include $(PROJECT_ROOT)/Makefile.common
 
-$(foreach d, $(DEP_LIBS_MODULES), $(eval $(call MAKE_DEP_LIB_DIR_VAR,$(d))))
-$(foreach d, $(DEP_LIBS_MODULES), $(eval $(call MAKE_DEP_ROOT_DIR_VAR,$(d))))
+$(foreach d, $($$(PROJECT_PREFIX)_DEP_LIBS_MODULES), $(eval $(call MAKE_DEP_LIB_DIR_VAR,$(d))))
+$(foreach d, $($$(PROJECT_PREFIX)_DEP_LIBS_MODULES), $(eval $(call MAKE_DEP_ROOT_DIR_VAR,$(d))))
 
--include $(foreach d, $(DEP_LIBS_MODULES), $(LIB_DIR)/$(d)/$(d).mk)
+-include $(foreach d, $($$(PROJECT_PREFIX)_DEP_LIBS_MODULES), $(LIB_DIR)/$(d)/$(d).mk)
 
 LIB_NAME = uart
 LIB = lib$(LIB_NAME).a
@@ -70,7 +70,7 @@ $(OBJECTS): $(SOURCES) $(INCLUDE_HEADERS)
 $(LIB_DIR)/$(LIB):
 	$(MAKE) -C $(PROJECT_ROOT)/src
 
-$(TARGET): $(OBJECTS) $(LIB_DIR)/$(LIB) | $(DEP_LIBS_MODULES)
+$(TARGET): $(OBJECTS) $(LIB_DIR)/$(LIB) | $($$(PROJECT_PREFIX)_DEP_LIBS_MODULES)
 	$(COMPILE) -o $@ $(OBJECTS) $(LDFLAGS) $(LDLIBS)
 
 # TODO: add EEPROM section

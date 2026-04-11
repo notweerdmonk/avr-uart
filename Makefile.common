@@ -183,7 +183,7 @@ define MAKE_DEP_ROOT_DIR_VAR
 	export $$(shell echo $(1) | sed 's/[- ]/_/g' | tr 'a-z' 'A-Z')_ROOT_DIR := $(LIB_DIR)/$(1)
 endef
 
-$(DEP_LIBS_MODULES):
+$($$(PROJECT_PREFIX)_DEP_LIBS_MODULES):
 	$(BUILD_DEP_LIBS)
 
 %.o: %.S
