@@ -1,7 +1,3 @@
-tags
-lib/
-docs/
-gdb_history
 *.i
 *.d
 *.s
@@ -13,3 +9,6 @@ gdb_history
 *.bin
 *.elf
 *.hex
+tags
+docs/
+gdb_history

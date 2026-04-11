@@ -32,8 +32,9 @@
  */
 
 #include <uart.h>
-#include <port.h>
 #include <string.h>
+#include <avr_portable.h>
+#include <avr_ascii.h>
 #include <util/delay.h>
 
 
@@ -172,23 +173,23 @@ void uart_setup(struct uart_config *config) {
     config->baud_rate = UART_BAUD_DEFAULT;
   }
 
-  port_uart_set_baud_rate(config->baud_rate);
-  port_uart_set_char_size(config->char_size);
-  port_uart_set_stop_bits(config->stop_bits);
-  port_uart_set_parity(config->parity);
+  PORT_UART_SET_BAUD_RATE(config->baud_rate);
+  PORT_UART_SET_CHAR_SIZE(config->char_size);
+  PORT_UART_SET_STOP_BITS(config->stop_bits);
+  PORT_UART_SET_PARITY(config->parity);
 
 #else /* !AVR_UART_RUNTIME_CONFIG */
 
 void uart_setup() {
 
-  port_uart_set_baud_rate(UART_BAUD_RATE);
-  port_uart_set_char_size(UART_CHAR_SIZE);
-  port_uart_set_stop_bits(UART_STOP_BITS);
-  port_uart_set_parity(UART_PARITY);
+  PORT_UART_SET_BAUD_RATE(UART_BAUD_RATE);
+  PORT_UART_SET_CHAR_SIZE(UART_CHAR_SIZE);
+  PORT_UART_SET_STOP_BITS(UART_STOP_BITS);
+  PORT_UART_SET_PARITY(UART_PARITY);
 
 #endif /* AVR_UART_RUNTIME_CONFIG */
 
-  port_uart_setup();
+  PORT_UART_INIT();
 
 #ifdef AVR_UART_STDIO
   stdout = stdin = stderr = &__uart_iostream;
@@ -207,7 +208,7 @@ void uart_setup() {
  *
  * @note Runs in ISR context with other interrupts blocked
  */
-ISR(port_udre_vect, ISR_BLOCK) {
+ISR(PORT_UDRE_VECT, ISR_BLOCK) {
 
   if (uart.tx_count > 0) {
     PORT_UDR = uart.tx_buffer[uart.tx_out];
@@ -217,7 +218,7 @@ ISR(port_udre_vect, ISR_BLOCK) {
     }
 
     if(--uart.tx_count == 0) {
-      port_disable_udre_interrupt();
+      PORT_DISABLE_UDRE_INTERRUPT();
     }
   }
 }
@@ -232,7 +233,7 @@ ISR(port_udre_vect, ISR_BLOCK) {
  *
  * @note Runs in ISR context with other interrupts blocked
  */
-ISR(port_rxc_vect, ISR_BLOCK) {
+ISR(PORT_RXC_VECT, ISR_BLOCK) {
 
 #ifdef AVR_UART_MATCH
 
@@ -277,7 +278,7 @@ char uart_recv_byte() {
   /* Wait till atleast one character has been received */
   while ( !(uart.rx_count > 0) );
 
-  port_disable_rxc_interrupt();
+  PORT_DISABLE_RXC_INTERRUPT();
 
   uart.rx_count--;
   char c = uart.rx_buffer[uart.rx_out];
@@ -285,7 +286,7 @@ char uart_recv_byte() {
     uart.rx_out = 0;
   }
 
-  port_enable_rxc_interrupt();
+  PORT_ENABLE_RXC_INTERRUPT();
 
   return c;
 }
@@ -294,7 +295,7 @@ char uart_try_recv_byte() {
 
   return (uart.rx_count > 0 ?
       ({
-        port_disable_rxc_interrupt();
+        PORT_DISABLE_RXC_INTERRUPT();
 
         uart.rx_count--;
         char c = uart.rx_buffer[uart.rx_out];
@@ -302,7 +303,7 @@ char uart_try_recv_byte() {
           uart.rx_out = 0;
         }
 
-        port_enable_rxc_interrupt();
+        PORT_ENABLE_RXC_INTERRUPT();
 
         c;
       }) :
@@ -352,7 +353,7 @@ void uart_send_byte(char c) {
 
   while (uart.tx_count == UART_TX_BUFFER_LEN);
 
-  port_disable_udre_interrupt();
+  PORT_DISABLE_UDRE_INTERRUPT();
 
   ++uart.tx_count;
   uart.tx_buffer[uart.tx_in] = c;
@@ -360,14 +361,14 @@ void uart_send_byte(char c) {
     uart.tx_in = 0;
   }
 
-  port_enable_udre_interrupt();
+  PORT_ENABLE_UDRE_INTERRUPT();
 }
 
 char uart_try_send_byte(char c) {
 
   return ( (uart.tx_count < UART_TX_BUFFER_LEN) &&
       ({
-        port_disable_udre_interrupt();
+        PORT_DISABLE_UDRE_INTERRUPT();
 
         ++uart.tx_count;
         uart.tx_buffer[uart.tx_in] = c;
@@ -375,7 +376,7 @@ char uart_try_send_byte(char c) {
           uart.tx_in = 0;
         }
 
-        port_enable_udre_interrupt();
+        PORT_ENABLE_UDRE_INTERRUPT();
       })
     );
 }
@@ -411,7 +412,7 @@ void uart_send_uint(unsigned int u) {
   }
 
   while (idx > 0) {
-    uart_send_byte(ascii(digits[--idx]));
+    uart_send_byte(avr_util_ascii(digits[--idx]));
   }
 }
 
@@ -447,9 +448,9 @@ void uart_send_double(double d, uint8_t m) {
 }
 
 void uart_newline() {
-  uart_send(c_CRLF, 2);
+  uart_send(AVR_UTIL_CONSTANT_CRLF, 2);
 }
 
 void uart_clear() {
-  uart_send(c_CLEARSCREEN_STRING, 7);
+  uart_send(AVR_UTIL_CONSTANT_CLEARSCREEN_STRING, 7);
 }

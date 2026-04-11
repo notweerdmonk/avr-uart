@@ -46,7 +46,7 @@
  * @note Memory-constrained devices may need smaller buffer sizes
  */
 
-#include <port.h>
+#include <avr_portable.h>
 #include <stdint.h>
 
 #ifdef AVR_UART_RUNTIME_CONFIG

@@ -1,0 +1,6 @@
+[submodule "lib/avr-utils"]
+	path = lib/avr-utils
+	url = https://github.com/notweerdmonk/avr-utils
+[submodule "lib/avr-portable"]
+	path = lib/avr-portable
+	url = https://github.com/notweerdmonk/avr-portable

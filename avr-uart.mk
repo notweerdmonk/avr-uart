@@ -1,4 +1,4 @@
-export AVR_UART_DEP_LIBS_MODULES :=
+export AVR_UART_DEP_LIBS_MODULES := avr-utils avr-portable
 
 ifeq ($(strip $(AVR_UART_ROOT_DIR)),)
 AVR_UART_ROOT_DIR := $(PROJECT_ROOT)

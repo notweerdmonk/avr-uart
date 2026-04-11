@@ -23,7 +23,11 @@
 
 .DEFAULT_GOAL = all
 
+PROJECT_PREFIX := AVR_UART
+
 PROJECT_ROOT := $(realpath ../../)
+
+LIB_DIR := $(PROJECT_ROOT)/lib
 
 INCLUDE_DIRS += $(realpath .)
 
