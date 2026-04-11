@@ -47,6 +47,7 @@
  */
 
 #include <port.h>
+#include <stdint.h>
 
 #ifdef AVR_UART_RUNTIME_CONFIG
 
